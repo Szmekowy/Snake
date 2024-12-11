@@ -1,1 +1,2 @@
 C:\Users\szmek\Desktop\SDL1\SDL1\x64\Debug\SDL1.exe
+C:\Users\szmek\Desktop\Snake\SDL1\SDL1\x64\Debug\SDL1.exe

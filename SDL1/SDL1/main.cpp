@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
 		// jaki uplyna³ od ostatniego narysowania ekranu
 		// delta to ten sam czas w sekundach
 		// here t2-t1 is the time in milliseconds since
-		// the last screen was dr
+		// the last screen was drawn
 		// delta is the same time in seconds
 		delta = (t2 - t1) * 0.001;
 		t1 = t2;
