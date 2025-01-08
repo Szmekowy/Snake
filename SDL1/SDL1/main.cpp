@@ -19,18 +19,27 @@ struct timer {
 	int  t1=SDL_GetTicks() , t2, frames=0;
 	double delta, worldTime=0, fpsTimer=0, fps=0, distance=0, etiSpeed;
 };
+struct czesci_weza {
+	int x;
+	int y;
+	int kierunek;
+};
 struct stan_gry {
 	timer time;
 	SDL_Event event;
 	SDL_Surface* screen, * charset, *obramowanie;
-	SDL_Surface* eti;
+	SDL_Surface* eti, *eti2;
 	SDL_Texture* scrtex;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+	int quit = 0;
 	struct {
-		int pozycja_x=0;
-		int pozycja_y=0;
+		int pozycja_x=500;
+		int pozycja_y=300;
 		int kierunek = 1;
+		int aktualny_rozmiar=1;
+		czesci_weza cialo_weza[1];
+
 	}snake;
 
 };
@@ -157,14 +166,110 @@ void inicjalizacja(stan_gry& gra)
 		SDL_DestroyRenderer(gra.renderer);
 		SDL_Quit();
 	};
+	gra.eti2 = SDL_LoadBMP("./eti.bmp"); //bitmapa do tekstu
+	if (gra.eti2 == NULL) {
+		printf("SDL_LoadBMP(eti2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+}
+void zdarzenie(stan_gry& gra)
+{
+	while (SDL_PollEvent(&gra.event)) {
+		switch (gra.event.type) {
+		case SDL_KEYDOWN:
+			if (gra.event.key.keysym.sym == SDLK_ESCAPE) gra.quit = 1;
+			else if (gra.event.key.keysym.sym == SDLK_n)
+			{
+				gra.snake.pozycja_x = 0;
+				gra.time.worldTime = 0;
+				gra.snake.kierunek = 1;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_d)
+			{
+				gra.snake.kierunek = 1;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_a)
+			{
+				gra.snake.kierunek = 2;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_w)
+			{
+				gra.snake.kierunek = 3;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_s)
+			{
+				gra.snake.kierunek = 4;
+			}
+			break;
+		case SDL_QUIT:
+			gra.quit = 1;
+			break;
+		};
+	};
+}
+void zmiana_pozycji(stan_gry &gra)
+{
+	if (gra.snake.kierunek == 1)
+	{
+		if (gra.snake.pozycja_x + gra.eti->w / 2 == 1270)
+		{
+			if (gra.snake.pozycja_y - gra.eti->h / 2 == 610)
+				gra.snake.kierunek = 3;
+			else
+				gra.snake.kierunek = 4;
+		}
+		else
+			gra.snake.pozycja_x++;
+	}
+	else if (gra.snake.kierunek == 2)
+	{
+		if (gra.snake.pozycja_x - gra.eti->w / 2 == 10)
+		{
+			if (gra.snake.pozycja_y - gra.eti->h / 2 == 66)
+				gra.snake.kierunek = 4;
+			else
+				gra.snake.kierunek = 3;
+
+		}
+		else
+			gra.snake.pozycja_x--;
+	}
+	else if (gra.snake.kierunek == 3)
+	{
+		if (gra.snake.pozycja_y - gra.eti->h / 2 == 66)
+		{
+			if (gra.snake.pozycja_x + gra.eti->w / 2 == 1270)
+				gra.snake.kierunek = 2;
+			else
+				gra.snake.kierunek = 1;
+
+		}
+		else
+			gra.snake.pozycja_y--;
+	}
+	else if (gra.snake.kierunek == 4)
+	{
+		if (gra.snake.pozycja_y - gra.eti->h / 2 == 610)
+		{
+			if (gra.snake.pozycja_x - gra.eti->w / 2 == 10)
+				gra.snake.kierunek = 1;
+			else
+				gra.snake.kierunek = 2;
+
+		}
+		else
+			gra.snake.pozycja_y++;
+	}
 }
 int main(int argc, char* argv[]) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
 	}
-	timer time;
-	int quit=0;
 	stan_gry gra;
 	inicjalizacja(gra);
 	char text[128];
@@ -173,67 +278,22 @@ int main(int argc, char* argv[]) {
 	int czerwony = SDL_MapRGB(gra.screen->format, 0xFF, 0x00, 0x00);
 	int niebieski = SDL_MapRGB(gra.screen->format, 0x11, 0x11, 0xCC);
 	DrawSurface(gra.screen, gra.eti, SCREEN_WIDTH/2, (SCREEN_HEIGHT+54)/2);
-	while (!quit) {
+	while (!gra.quit) {
 		SDL_FillRect(gra.screen, NULL, czarny);
 		DrawSurface(gra.screen, gra.obramowanie, SCREEN_WIDTH / 2, (SCREEN_HEIGHT + 54) / 2);
-		funkcjetimer(time);
-		DrawSurface(gra.screen, gra.eti, gra.snake.pozycja_x+500, gra.snake.pozycja_y+300);
+		funkcjetimer(gra.time);
+		DrawSurface(gra.screen, gra.eti, gra.snake.pozycja_x, gra.snake.pozycja_y);
+		DrawSurface(gra.screen, gra.eti2, gra.snake.cialo_weza->x, gra.snake.cialo_weza->y);
 		DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH , 50, czerwony, niebieski);  //maluje okno wyœwietlania tekstu
-		sprintf(text, "Szsablasfsdon drugiego zadania, czas trwania = %.1lf s  %.0lf klatek / s", time.worldTime, time.fps);
+		sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d    %d", gra.time.worldTime, gra.time.fps, gra.snake.pozycja_x, gra.eti->w);
 		DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 10, text, gra.charset);
 		sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
 		DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 26, text, gra.charset);
 		SDL_UpdateTexture(gra.scrtex, NULL, gra.screen->pixels, gra.screen->pitch);
 		SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
 		SDL_RenderPresent(gra.renderer);
-		while (SDL_PollEvent(&gra.event)) {
-			switch (gra.event.type) {
-			case SDL_KEYDOWN:
-				if (gra.event.key.keysym.sym == SDLK_ESCAPE) quit = 1;
-				else if (gra.event.key.keysym.sym == SDLK_UP)
-				{
-					gra.snake.pozycja_x = 0;
-					time.worldTime = 0;
-					gra.snake.kierunek = 1;
-				}
-				else if (gra.event.key.keysym.sym == SDLK_d)
-				{
-					gra.snake.kierunek = 1;
-				}
-				else if (gra.event.key.keysym.sym == SDLK_a)
-				{
-					gra.snake.kierunek = 2;
-				}
-				else if (gra.event.key.keysym.sym == SDLK_w)
-				{
-					gra.snake.kierunek = 3;
-				}
-				else if (gra.event.key.keysym.sym == SDLK_s)
-				{
-					gra.snake.kierunek = 4;
-				}
-				break;
-			case SDL_QUIT:
-				quit = 1;
-				break;
-			};
-		};
-		if (gra.snake.kierunek == 1)
-		{
-			gra.snake.pozycja_x++;
-		}
-		else if (gra.snake.kierunek == 2)
-		{
-			gra.snake.pozycja_x--;
-		}
-		else if (gra.snake.kierunek == 3)
-		{
-			gra.snake.pozycja_y--;
-		}
-		else if (gra.snake.kierunek == 4)
-		{
-			gra.snake.pozycja_y++;
-		}
+		zdarzenie(gra);
+		zmiana_pozycji(gra);
 	}
 
 }
