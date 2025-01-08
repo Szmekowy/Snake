@@ -5,6 +5,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{A71A9910-4D92-4A9E-B586-AC33C7B8D867}|SDL1\\SDL1.vcxproj|C:\\Users\\szmek\\Desktop\\Snake\\SDL1\\SDL1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{A71A9910-4D92-4A9E-B586-AC33C7B8D867}|SDL1\\SDL1.vcxproj|solutionrelative:SDL1\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\szmek\\Desktop\\Snake\\SDL1\\SDL1\\\u0179r\u00F3d\u0142o1.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SDL1\\\u0179r\u00F3d\u0142o1.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,8 +18,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "\u0179r\u00F3d\u0142o1.cpp",
+              "DocumentMoniker": "C:\\Users\\szmek\\Desktop\\Snake\\SDL1\\SDL1\\\u0179r\u00F3d\u0142o1.cpp",
+              "RelativeDocumentMoniker": "SDL1\\\u0179r\u00F3d\u0142o1.cpp",
+              "ToolTip": "C:\\Users\\szmek\\Desktop\\Snake\\SDL1\\SDL1\\\u0179r\u00F3d\u0142o1.cpp",
+              "RelativeToolTip": "SDL1\\\u0179r\u00F3d\u0142o1.cpp",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAEwGEAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-12-11T20:07:25.389Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -24,7 +41,7 @@
               "RelativeDocumentMoniker": "SDL1\\main.cpp",
               "ToolTip": "C:\\Users\\szmek\\Desktop\\Snake\\SDL1\\SDL1\\main.cpp",
               "RelativeToolTip": "SDL1\\main.cpp",
-              "ViewState": "AgIAANIAAAAAAAAAAAAAAOIAAABOAAAAAAAAAA==",
+              "ViewState": "AgIAALAAAAAAAAAAAAAUwMcAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-12-11T17:14:59.347Z",
               "EditorCaption": ""
