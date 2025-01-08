@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
 	quit = 0;
 	worldTime = 0;
 	distance = 0;
-	etiSpeed = 1;
+	etiSpeed = 2;
 
 	while (!quit) {
 		t2 = SDL_GetTicks();
@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
 		// tekst informacyjny / info text
 		DrawRectangle(screen, 4, 4, SCREEN_WIDTH - 8, 36, czerwony, niebieski);
 		//            "template for the second project, elapsed time = %.1lf s  %.0lf frames / s"
-		sprintf(text, "Szablon drugiego zadania, czas trwania = %.1lf s  %.0lf klatek / s", worldTime, fps);
+		sprintf(text, "Szsablasfsdon drugiego zadania, czas trwania = %.1lf s  %.0lf klatek / s", worldTime, fps);
 		DrawString(screen, screen->w / 2 - strlen(text) * 8 / 2, 10, text, charset);
 		//	      "Esc - exit, \030 - faster, \031 - slower"
 		sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
