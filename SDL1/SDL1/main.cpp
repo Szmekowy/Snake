@@ -36,8 +36,8 @@ struct stan_gry {
 	SDL_Renderer* renderer;
 	int quit = 0;
 	struct {
-		int aktualny_rozmiar=7;
-		czesci_weza cialo_weza[10];
+		int aktualny_rozmiar=30;
+		czesci_weza cialo_weza[40];
 	}snake;
 
 };
@@ -322,7 +322,39 @@ void init_cialo(stan_gry& gra)
 		gra.snake.cialo_weza[i].x = gra.snake.cialo_weza[i - 1].x - 90;
 		gra.snake.cialo_weza[i].y = gra.snake.cialo_weza[i - 1].y;
 		gra.snake.cialo_weza[i].kierunek = 1;
+		gra.snake.cialo_weza[i].pom = 1;
 	}
+}
+int czy_kolizja(stan_gry& gra)
+{
+	for (int i = 1; i < gra.snake.aktualny_rozmiar; i++)
+	{
+		if (gra.snake.cialo_weza[0].kierunek == 1)
+		{
+			if (gra.snake.cialo_weza[0].x + 90 == gra.snake.cialo_weza[i].x)
+				if ((gra.snake.cialo_weza[0].y + 90 >= gra.snake.cialo_weza[i].y) && (gra.snake.cialo_weza[0].y - 90 <= gra.snake.cialo_weza[i].y))
+					return 1;
+		}
+		else if (gra.snake.cialo_weza[0].kierunek == 2)
+		{
+			if (gra.snake.cialo_weza[0].x - 90 == gra.snake.cialo_weza[i].x)
+				if ((gra.snake.cialo_weza[0].y + 90 >= gra.snake.cialo_weza[i].y) && (gra.snake.cialo_weza[0].y - 90 <= gra.snake.cialo_weza[i].y))
+					return 1;
+		}
+		else if (gra.snake.cialo_weza[0].kierunek == 3)
+		{
+			if (gra.snake.cialo_weza[0].y - 90 == gra.snake.cialo_weza[i].y)
+				if ((gra.snake.cialo_weza[0].x + 90 >= gra.snake.cialo_weza[i].x) && (gra.snake.cialo_weza[0].x - 90 <= gra.snake.cialo_weza[i].x))
+					return 1;
+		}
+		else if (gra.snake.cialo_weza[0].kierunek == 4)
+		{
+			if (gra.snake.cialo_weza[0].y + 90 == gra.snake.cialo_weza[i].y)
+				if ((gra.snake.cialo_weza[0].x + 90 >= gra.snake.cialo_weza[i].x) && (gra.snake.cialo_weza[0].x - 90 <= gra.snake.cialo_weza[i].x))
+					return 1;
+		}
+	}
+	return 0;
 }
 int main(int argc, char* argv[]) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -349,13 +381,56 @@ int main(int argc, char* argv[]) {
 			gra.time.licznik_zmiany = 0;
 		}
 		zmiana_pozycji(gra);
+		if (czy_kolizja(gra))
+		{
+			SDL_SetRenderDrawColor(gra.renderer, 0, 0, 0, 255);
+			SDL_RenderClear(gra.renderer);
+			SDL_RenderPresent(gra.renderer);
+			DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH, 50, czerwony, niebieski);  //maluje okno wyœwietlania tekstu
+			sprintf(text, "nacisniej ESCAPE aby zakonczyc nacisnij n aby rozpoczac ponownie");
+			DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 10, text, gra.charset);
+			SDL_UpdateTexture(gra.scrtex, NULL, gra.screen->pixels, gra.screen->pitch);
+			SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
+			SDL_RenderPresent(gra.renderer);
+			int przycisk = 0;
+			while (!przycisk)
+			{
+				if (SDL_WaitEvent(&gra.event)) {
+					switch (gra.event.type) {
+					case SDL_QUIT:
+						gra.quit = 1;
+						przycisk = 1;
+						break;
+
+					case SDL_KEYDOWN:
+						if (gra.event.key.keysym.sym == SDLK_n)
+						{
+							gra.snake.cialo_weza[0].x = 500;
+							gra.snake.cialo_weza[0].y = 300;
+							gra.snake.cialo_weza[0].kierunek = 1;
+							gra.time.worldTime = 0;
+							init_cialo(gra);
+							przycisk = 1;
+							gra.time.snake_speed_licznik = 0;
+						}
+						else if (gra.event.key.keysym.sym == SDLK_ESCAPE)
+						{
+							gra.quit = 1;
+							przycisk = 1;
+						}
+						break;
+					}
+				}
+			}
+		}
+
 		for (int i = 1; i < gra.snake.aktualny_rozmiar; i++)
 		{
 			DrawSurface(gra.screen, gra.eti2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
 			zmiana_pozycji_ciala(gra, i);
 		}
 		DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH , 50, czerwony, niebieski);  //maluje okno wyœwietlania tekstu
-		sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d    %d", gra.time.worldTime, gra.time.fps, gra.snake.cialo_weza[2].pom, gra.eti->w);
+		sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d    %d", gra.time.worldTime, gra.time.fps, gra.snake.cialo_weza[2].pom, czy_kolizja(gra));
 		DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 10, text, gra.charset);
 		sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
 		DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 26, text, gra.charset);
@@ -363,5 +438,4 @@ int main(int argc, char* argv[]) {
 		SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
 		SDL_RenderPresent(gra.renderer);
 	}
-
 }
