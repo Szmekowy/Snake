@@ -59,8 +59,7 @@ struct stan_gry {
 };
 void funkcjetimer(stan_gry	&gra)
 {
-	int czas= SDL_GetTicks() -gra.czy_odczyt;
-	gra.time.t2 = czas;
+	gra.time.t2 = SDL_GetTicks();
 	gra.time.delta = (gra.time.t2 - gra.time.t1) * 0.001;
 	gra.time.t1 = gra.time.t2;
 	gra.time.snake_speed_licznik += gra.time.delta;
@@ -618,6 +617,7 @@ void zapisz(stan_gry& gra)
 		fprintf(plik, "%d \n", gra.snake.cialo_weza[i].pom);
 		fprintf(plik, "%d \n", gra.snake.cialo_weza[i].kierunek);
 	}
+	fclose(plik);
 
 }
 void odczyt(stan_gry& gra)
@@ -660,6 +660,7 @@ void odczyt(stan_gry& gra)
 		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].pom);
 		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].kierunek);
 	}
+	fclose(plik);
 }
 void zdarzenie(stan_gry& gra)
 {
@@ -697,8 +698,7 @@ void zdarzenie(stan_gry& gra)
 			else if (gra.event.key.keysym.sym == SDLK_i)
 			{
 				odczyt(gra);
-				gra.czy_odczyt = gra.time.t2;
-				gra.time.t1 = 0;
+				gra.time.t1 = SDL_GetTicks();
 			}
 			break;
 		case SDL_QUIT:
