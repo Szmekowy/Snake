@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
@@ -17,7 +18,7 @@ extern "C"
 #define SCREEN_WIDTH	1280
 #define SCREEN_HEIGHT	720
 struct timer {
-	int  t1=SDL_GetTicks() , t2, frames=0;
+	int  t1=SDL_GetTicks() , t2=0, frames=0;
 	double delta, worldTime=0, fpsTimer=0, fps=0, distance=0, snake_speed=0.008, snake_speed_licznik=0;
 	double czas_zmiany = 0.4, licznik_zmiany = 0.4; 
 	double speedup_limit = 5.0;
@@ -45,6 +46,9 @@ struct stan_gry {
 	SDL_Renderer* renderer;
 	int quit = 0;
 	int total_progres = 1;
+	int points = 0;
+	int czerwony_bonus = 0;
+	int czy_odczyt = 0;
 	wisnie wisnia_powieksz;
 	wisnie wisnia_bonusowa;
 	struct {
@@ -55,7 +59,8 @@ struct stan_gry {
 };
 void funkcjetimer(stan_gry	&gra)
 {
-	gra.time.t2 = SDL_GetTicks();
+	int czas= SDL_GetTicks() -gra.czy_odczyt;
+	gra.time.t2 = czas;
 	gra.time.delta = (gra.time.t2 - gra.time.t1) * 0.001;
 	gra.time.t1 = gra.time.t2;
 	gra.time.snake_speed_licznik += gra.time.delta;
@@ -214,42 +219,6 @@ void inicjalizacja(stan_gry& gra)
 		SDL_DestroyWindow(gra.window);
 		SDL_DestroyRenderer(gra.renderer);
 		SDL_Quit();
-	};
-}
-void zdarzenie(stan_gry& gra)
-{
-	while (SDL_PollEvent(&gra.event)) {
-		switch (gra.event.type) {
-		case SDL_KEYDOWN:
-			if (gra.event.key.keysym.sym == SDLK_ESCAPE) gra.quit = 1;
-			else if (gra.event.key.keysym.sym == SDLK_n)
-			{
-				gra.snake.cialo_weza[0].x = 500;
-				gra.snake.cialo_weza[0].y = 300;
-				gra.time.worldTime = 0;
-				gra.snake.cialo_weza[0].kierunek = 1;
-			}
-			else if (gra.event.key.keysym.sym == SDLK_d)
-			{
-				gra.snake.cialo_weza[0].kierunek = 1;
-			}
-			else if (gra.event.key.keysym.sym == SDLK_a)
-			{
-				gra.snake.cialo_weza[0].kierunek = 2;
-			}
-			else if (gra.event.key.keysym.sym == SDLK_w)
-			{
-				gra.snake.cialo_weza[0].kierunek = 3;
-			}
-			else if (gra.event.key.keysym.sym == SDLK_s)
-			{
-				gra.snake.cialo_weza[0].kierunek = 4;
-			}
-			break;
-		case SDL_QUIT:
-			gra.quit = 1;
-			break;
-		};
 	};
 }
 void zmiana_pozycji(stan_gry &gra)
@@ -436,9 +405,17 @@ void rozpocznij_gre(stan_gry& gra)
 						gra.snake.cialo_weza[0].y = 300;
 						gra.snake.cialo_weza[0].kierunek = 1;
 						gra.time.worldTime = 0;
+						gra.snake.aktualny_rozmiar = 5;
 						init_cialo(gra);
 						przycisk = 1;
 						gra.time.snake_speed_licznik = 0;
+						gra.points = 0;
+						gra.time.snake_speed = 0.008;
+						gra.total_progres = 1;
+						gra.time.speedup_limit = 5;
+						gra.time.licznik_zmiany = 0.4;
+						gra.time.czas_zmiany = 0.4;
+						gra.czerwony_bonus = 0;
 					}
 					else if (gra.event.key.keysym.sym == SDLK_ESCAPE)
 					{
@@ -525,6 +502,7 @@ void zmniejsz(stan_gry& gra, int bonus)
 		
 		gra.wisnia_bonusowa.x = rand() % 1200 + 30;
 		gra.wisnia_bonusowa.y = rand() % 550 + 130;
+		gra.points++;
 	}
 }
 int czy_bonus()
@@ -569,6 +547,7 @@ void powieksz(stan_gry& gra)
 			gra.snake.cialo_weza[gra.snake.aktualny_rozmiar - 1].kierunek = 4;
 			gra.snake.cialo_weza[gra.snake.aktualny_rozmiar - 1].pom = 1;
 		}
+		gra.points++;
 	}
 }
 void licznik_progresu(stan_gry& gra, int& bonus)
@@ -599,6 +578,135 @@ void licznik_progresu(stan_gry& gra, int& bonus)
 		gra.wisnia_bonusowa.y = rand() % 550 + 130;
 	}
 }
+void zapisz(stan_gry& gra)
+{
+	FILE* plik;
+	plik = fopen("zapisgry.txt", "r+");
+	if (plik == NULL)
+	{
+		printf("zapis error: \n");
+	}
+	fprintf(plik, "%d \n", gra.time.t1);
+	fprintf(plik, "%d \n", gra.time.t2);
+	fprintf(plik, "%d \n", gra.time.frames);
+	fprintf(plik, "%lf \n", gra.time.delta);
+	fprintf(plik, "%lf \n", gra.time.worldTime);
+	fprintf(plik, "%lf \n", gra.time.fpsTimer);
+	fprintf(plik, "%lf \n", gra.time.fps);
+	fprintf(plik, "%lf \n", gra.time.snake_speed);
+	fprintf(plik, "%lf \n", gra.time.snake_speed_licznik);
+	fprintf(plik, "%lf \n", gra.time.czas_zmiany);
+	fprintf(plik, "%lf \n", gra.time.licznik_zmiany);
+	fprintf(plik, "%lf \n", gra.time.speedup_limit);
+	fprintf(plik, "%lf \n", gra.time.speedup);
+	fprintf(plik, "%lf \n", gra.time.progres_delay);
+	fprintf(plik, "%lf \n", gra.time.progres_rand);
+	fprintf(plik, "%d \n", gra.quit);
+	fprintf(plik, "%d \n", gra.total_progres);
+	fprintf(plik, "%d \n", gra.points);
+	fprintf(plik, "%d \n", gra.czerwony_bonus);
+	fprintf(plik, "%d \n", gra.czy_odczyt);
+	fprintf(plik, "%d \n", gra.wisnia_powieksz.x);
+	fprintf(plik, "%d \n", gra.wisnia_powieksz.y);
+	fprintf(plik, "%d \n", gra.wisnia_bonusowa.x);
+	fprintf(plik, "%d \n", gra.wisnia_bonusowa.x);
+	fprintf(plik, "%d \n", gra.snake.aktualny_rozmiar);
+	for (int i = 0; i < gra.snake.aktualny_rozmiar; i++)
+	{
+		fprintf(plik, "%d \n", gra.snake.cialo_weza[i].x);
+		fprintf(plik, "%d \n", gra.snake.cialo_weza[i].y);
+		fprintf(plik, "%d \n", gra.snake.cialo_weza[i].pom);
+		fprintf(plik, "%d \n", gra.snake.cialo_weza[i].kierunek);
+	}
+
+}
+void odczyt(stan_gry& gra)
+{
+	FILE* plik;
+	plik = fopen("zapisgry.txt", "r+");
+	if (plik == NULL)
+	{
+		printf("odczyt error: \n");
+	}
+	fscanf(plik, "%d ", &gra.time.t1);
+	fscanf(plik, "%d ", &gra.time.t2);
+	fscanf(plik, "%d ", &gra.time.frames);
+	fscanf(plik, "%lf ", &gra.time.delta);
+	fscanf(plik, "%lf ", &gra.time.worldTime);
+	fscanf(plik, "%lf ", &gra.time.fpsTimer);
+	fscanf(plik, "%lf ", &gra.time.fps);
+	fscanf(plik, "%lf ", &gra.time.snake_speed);
+	fscanf(plik, "%lf ", &gra.time.snake_speed_licznik);
+	fscanf(plik, "%lf ", &gra.time.czas_zmiany);
+	fscanf(plik, "%lf ", &gra.time.licznik_zmiany);
+	fscanf(plik, "%lf ", &gra.time.speedup_limit);
+	fscanf(plik, "%lf ", &gra.time.speedup);
+	fscanf(plik, "%lf ", &gra.time.progres_delay);
+	fscanf(plik, "%lf ", &gra.time.progres_rand);
+	fscanf(plik, "%d ", &gra.quit);
+	fscanf(plik, "%d ", &gra.total_progres);
+	fscanf(plik, "%d ", &gra.points);
+	fscanf(plik, "%d ", &gra.czerwony_bonus);
+	fscanf(plik, "%d ", &gra.czy_odczyt);
+	fscanf(plik, "%d ", &gra.wisnia_powieksz.x);
+	fscanf(plik, "%d ", &gra.wisnia_powieksz.y);
+	fscanf(plik, "%d ", &gra.wisnia_bonusowa.x);
+	fscanf(plik, "%d ", &gra.wisnia_bonusowa.x);
+	fscanf(plik, "%d ", &gra.snake.aktualny_rozmiar);
+	for (int i = 0; i < gra.snake.aktualny_rozmiar; i++)
+	{
+		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].x);
+		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].y);
+		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].pom);
+		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].kierunek);
+	}
+}
+void zdarzenie(stan_gry& gra)
+{
+	while (SDL_PollEvent(&gra.event)) {
+		switch (gra.event.type) {
+		case SDL_KEYDOWN:
+			if (gra.event.key.keysym.sym == SDLK_ESCAPE) gra.quit = 1;
+			else if (gra.event.key.keysym.sym == SDLK_n)
+			{
+				gra.snake.cialo_weza[0].x = 500;
+				gra.snake.cialo_weza[0].y = 300;
+				gra.time.worldTime = 0;
+				gra.snake.cialo_weza[0].kierunek = 1;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_d)
+			{
+				gra.snake.cialo_weza[0].kierunek = 1;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_a)
+			{
+				gra.snake.cialo_weza[0].kierunek = 2;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_w)
+			{
+				gra.snake.cialo_weza[0].kierunek = 3;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_s)
+			{
+				gra.snake.cialo_weza[0].kierunek = 4;
+			}
+			else if (gra.event.key.keysym.sym == SDLK_p)
+			{
+				zapisz(gra);
+			}
+			else if (gra.event.key.keysym.sym == SDLK_i)
+			{
+				odczyt(gra);
+				gra.czy_odczyt = gra.time.t2;
+				gra.time.t1 = 0;
+			}
+			break;
+		case SDL_QUIT:
+			gra.quit = 1;
+			break;
+		};
+	};
+}
 int main(int argc, char* argv[]) {
 	srand(time(NULL));
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -615,7 +723,6 @@ int main(int argc, char* argv[]) {
 	int niebieski = SDL_MapRGB(gra.screen->format, 0x11, 0x11, 0xCC);
 	DrawSurface(gra.screen, gra.eti, SCREEN_WIDTH/2, (SCREEN_HEIGHT+54)/2);
 	init_cialo(gra);
-	int bonus = 0;
 	gra.wisnia_bonusowa.x = rand() % 1200 + 30;
 	gra.wisnia_bonusowa.y = rand() % 550 + 130;
 	while (!gra.quit) {
@@ -641,15 +748,15 @@ int main(int argc, char* argv[]) {
 		DrawSurface(gra.screen, gra.wisnia, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
 		DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH , 50, czerwony, niebieski); 
 		//maluje okno wyœwietlania tekstu
-		sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d    ", gra.time.worldTime, gra.time.fps, gra.total_progres );
+		sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d    ", gra.time.worldTime, gra.time.fps, gra.points );
 		DrawString(gra.screen, gra.screen->w / 4 - strlen(text) * 8 / 2, 10, text, gra.charset);
 		sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
 		DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 26, text, gra.charset);
 		DrawSurface(gra.screen, gra.progres, 1000, 25);
 		DrawRectangle(gra.screen, 870, 8, gra.total_progres, 34, czerwony, czerwony);
-		if (bonus == 1)
+		if (gra.czerwony_bonus == 1)
 		{
-			zmniejsz(gra,bonus);
+			zmniejsz(gra,gra.czerwony_bonus);
 			DrawSurface(gra.screen, gra.bonus, gra.wisnia_bonusowa.x, gra.wisnia_bonusowa.y);
 		}
 		SDL_UpdateTexture(gra.scrtex, NULL, gra.screen->pixels, gra.screen->pitch);
@@ -662,7 +769,7 @@ int main(int argc, char* argv[]) {
 			if(gra.time.czas_zmiany>0.2)
 			gra.time.czas_zmiany /= gra.time.speedup;
 		}
-		licznik_progresu(gra, bonus);
+		licznik_progresu(gra, gra.czerwony_bonus);
 		
 
 	}
