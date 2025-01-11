@@ -374,55 +374,104 @@ void rozpocznij_gre(stan_gry& gra)
 	int niebieski = SDL_MapRGB(gra.screen->format, 0x11, 0x11, 0xCC);
 	if (czy_kolizja(gra))
 	{
-		SDL_SetRenderDrawColor(gra.renderer, 0, 0, 0, 255);
-		SDL_RenderClear(gra.renderer);
-		SDL_RenderPresent(gra.renderer);
-		DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH, 50, czerwony, niebieski);  //maluje okno wyœwietlania tekstu
-		sprintf(text, "nacisniej ESCAPE aby zakonczyc nacisnij n aby rozpoczac ponownie");
-		DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 10, text, gra.charset);
-		for (int i = 0; i < gra.snake.aktualny_rozmiar; i++)
-		{
-			DrawSurface(gra.screen, gra.eti2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-		}
-		SDL_UpdateTexture(gra.scrtex, NULL, gra.screen->pixels, gra.screen->pitch);
-		SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
-		SDL_RenderPresent(gra.renderer);
-		int przycisk = 0;
-		int czy_imie = 1;
-		char imiegracza[6] = "";
-		SDL_StartTextInput();
-		while (przycisk == 0) {
-			while (SDL_PollEvent(&gra.event)) {
-				switch (gra.event.type) {
-				case SDL_QUIT:
-					przycisk = 1;
-					break;
-				case SDL_TEXTINPUT:
-					if (czy_imie) {
-						if (strlen(imiegracza) + strlen(gra.event.text.text) < sizeof(imiegracza)-1) {
-							strcat(imiegracza, gra.event.text.text);
-						}
-						else
-						{
-							przycisk = 1;
-							strcat(imiegracza, gra.event.text.text);
-						}
-					}
-					break;
-				}
-			}
-		}
-		SDL_StopTextInput();
-		 przycisk = 0;
+		
+		 int przycisk = 0;
+		 char imiegracza[6] = "";
 		 FILE* plik;
 		 plik = fopen("scores.txt", "r+");
 		 if (plik == NULL)
 		 {
 			 printf("scores error: \n");
 		 }
-		 fprintf(plik, "%s ", imiegracza);
-		 fprintf(plik, "  %d \n", gra.points);
+		 char gracz1[6], gracz2[6], gracz3[6];
+		 int wynik1, wynik2, wynik3;
+		 fscanf(plik, "%s", &gracz1);
+		 fscanf(plik, "%d", &wynik1);
+		 fscanf(plik, "%s", &gracz2);
+		 fscanf(plik, "%d", &wynik2);
+		 fscanf(plik, "%s", &gracz3);
+		 fscanf(plik, "%d", &wynik3);
+		 if (gra.points > wynik3)
+		 {
+			 DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH, 50, czerwony, niebieski);  //maluje okno wyœwietlania tekstu
+			 sprintf(text, " Napisz 5 literowe imie gracza");
+			 DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 30, text, gra.charset);
+			 SDL_UpdateTexture(gra.scrtex, NULL, gra.screen->pixels, gra.screen->pitch);
+			 SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
+			 SDL_RenderPresent(gra.renderer);
+			 for (int i = 0; i < gra.snake.aktualny_rozmiar; i++)
+			 {
+				 DrawSurface(gra.screen, gra.eti2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			 }
+			 int czy_imie = 1;
+			 SDL_StartTextInput();
+			 while (przycisk == 0) {
+				 while (SDL_PollEvent(&gra.event)) {
+					 switch (gra.event.type) {
+					 case SDL_QUIT:
+						 przycisk = 1;
+						 break;
+					 case SDL_TEXTINPUT:
+						 if (czy_imie) {
+							 if (strlen(imiegracza) + strlen(gra.event.text.text) < sizeof(imiegracza) - 1) {
+								 strcat(imiegracza, gra.event.text.text);
+							 }
+							 else
+							 {
+								 przycisk = 1;
+								 strcat(imiegracza, gra.event.text.text);
+							 }
+							 DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH, 50, czerwony, niebieski);
+							 sprintf(text, " Napisz 5 literowe imie gracza %s", imiegracza);
+							 DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 30, text, gra.charset);
+							 SDL_UpdateTexture(gra.scrtex, NULL, gra.screen->pixels, gra.screen->pitch);
+							 SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
+							 SDL_RenderPresent(gra.renderer);
+						 }
+						 break;
+					 }
+				 }
+			 }
+			 SDL_StopTextInput();
+			 przycisk = 0;
+		 }
+		 if (gra.points > wynik3 && gra.points <= wynik2)
+		 {
+			 wynik3 = gra.points;
+			 memcpy(gracz3, imiegracza, sizeof(imiegracza));
+		 }
+		 else if (gra.points > wynik2 && gra.points <= wynik1)
+		 {
+			 wynik3 = wynik2;
+			 memcpy(gracz3, gracz2, sizeof(imiegracza));
+			 wynik2 = gra.points;
+			 memcpy(gracz2, imiegracza, sizeof(imiegracza));
+		 }
+		 else if (gra.points > wynik1)
+		 {
+			 wynik3 = wynik2;
+			 memcpy(gracz3, gracz2, sizeof(imiegracza));
+			 wynik2 = wynik1;
+			 memcpy(gracz2, gracz1, sizeof(imiegracza));
+			 wynik1 = gra.points;
+			 memcpy(gracz1, imiegracza, sizeof(imiegracza));
+		 }
+		 fseek(plik, 0, SEEK_SET);
+		 fprintf(plik, "%s ", gracz1);
+		 fprintf(plik, "  %d \n", wynik1);
+		 fprintf(plik, "%s ", gracz2);
+		 fprintf(plik, "  %d \n", wynik2);
+		 fprintf(plik, "%s ", gracz3);
+		 fprintf(plik, "  %d \n", wynik3);
 		 fclose(plik);
+		 DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH, 50, czerwony, niebieski);
+		 sprintf(text, "Najlepsze wyniki: 1. %s  %d  2. %s  %d  3. %s  %d ", gracz1, wynik1, gracz2, wynik2, gracz3, wynik3);
+		 DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 10, text, gra.charset);
+		 sprintf(text, "N-nowa gra ESC-zakoncz ");
+		 DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 30, text, gra.charset);
+		 SDL_UpdateTexture(gra.scrtex, NULL, gra.screen->pixels, gra.screen->pitch);
+		 SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
+		 SDL_RenderPresent(gra.renderer);
 		while (!przycisk)
 		{
 			if (SDL_WaitEvent(&gra.event)) {
