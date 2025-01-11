@@ -388,6 +388,41 @@ void rozpocznij_gre(stan_gry& gra)
 		SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
 		SDL_RenderPresent(gra.renderer);
 		int przycisk = 0;
+		int czy_imie = 1;
+		char imiegracza[6] = "";
+		SDL_StartTextInput();
+		while (przycisk == 0) {
+			while (SDL_PollEvent(&gra.event)) {
+				switch (gra.event.type) {
+				case SDL_QUIT:
+					przycisk = 1;
+					break;
+				case SDL_TEXTINPUT:
+					if (czy_imie) {
+						if (strlen(imiegracza) + strlen(gra.event.text.text) < sizeof(imiegracza)-1) {
+							strcat(imiegracza, gra.event.text.text);
+						}
+						else
+						{
+							przycisk = 1;
+							strcat(imiegracza, gra.event.text.text);
+						}
+					}
+					break;
+				}
+			}
+		}
+		SDL_StopTextInput();
+		 przycisk = 0;
+		 FILE* plik;
+		 plik = fopen("scores.txt", "r+");
+		 if (plik == NULL)
+		 {
+			 printf("scores error: \n");
+		 }
+		 fprintf(plik, "%s ", imiegracza);
+		 fprintf(plik, "  %d \n", gra.points);
+		 fclose(plik);
 		while (!przycisk)
 		{
 			if (SDL_WaitEvent(&gra.event)) {
@@ -398,33 +433,36 @@ void rozpocznij_gre(stan_gry& gra)
 					break;
 
 				case SDL_KEYDOWN:
-					if (gra.event.key.keysym.sym == SDLK_n)
-					{
-						gra.snake.cialo_weza[0].x = 500;
-						gra.snake.cialo_weza[0].y = 300;
-						gra.snake.cialo_weza[0].kierunek = 1;
-						gra.time.worldTime = 0;
-						gra.snake.aktualny_rozmiar = 5;
-						init_cialo(gra);
-						przycisk = 1;
-						gra.time.snake_speed_licznik = 0;
-						gra.points = 0;
-						gra.time.snake_speed = 0.008;
-						gra.total_progres = 1;
-						gra.time.speedup_limit = 5;
-						gra.time.licznik_zmiany = 0.4;
-						gra.time.czas_zmiany = 0.4;
-						gra.czerwony_bonus = 0;
-					}
-					else if (gra.event.key.keysym.sym == SDLK_ESCAPE)
-					{
-						gra.quit = 1;
-						przycisk = 1;
-					}
+						if (gra.event.key.keysym.sym == SDLK_n)
+						{
+							gra.snake.cialo_weza[0].x = 500;
+							gra.snake.cialo_weza[0].y = 300;
+							gra.snake.cialo_weza[0].kierunek = 1;
+							gra.time.worldTime = 0;
+							gra.snake.aktualny_rozmiar = 5;
+							init_cialo(gra);
+							przycisk = 1;
+							gra.time.snake_speed_licznik = 0;
+							gra.points = 0;
+							gra.time.snake_speed = 0.008;
+							gra.total_progres = 1;
+							gra.time.speedup_limit = 5;
+							gra.time.licznik_zmiany = 0.4;
+							gra.time.czas_zmiany = 0.4;
+							gra.czerwony_bonus = 0;
+							gra.time.t1 = SDL_GetTicks();
+						}
+						else if (gra.event.key.keysym.sym == SDLK_ESCAPE)
+						{
+							gra.quit = 1;
+							przycisk = 1;
+						}
 					break;
+					
 				}
 			}
 		}
+
 	}
 }
 int zebranie_wisni(stan_gry& gra)
