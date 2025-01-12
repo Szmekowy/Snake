@@ -1,3 +1,4 @@
+///SZYMON DRYWA s203668 PROJEKT 2 SNAKE korzystam z szablonu projekt 2 SNAKE ///
 #define _CRT_SECURE_NO_WARNINGS
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -15,8 +16,12 @@ extern "C" {
 extern "C"
 #endif
 
-#define SCREEN_WIDTH	1280
-#define SCREEN_HEIGHT	720
+#define SCREEN_WIDTH	1280 //szerokoœæ planszy
+#define SCREEN_HEIGHT	720 //wysokoœæ planszy
+
+//////////										
+////////// STRUKTURY							
+////////// 
 struct timer {
 	int  t1=SDL_GetTicks() , t2=0, frames=0;
 	double delta, worldTime=0, fpsTimer=0, fps=0, distance=0, snake_speed=0.008, snake_speed_licznik=0;
@@ -40,7 +45,7 @@ struct stan_gry {
 	timer time;
 	SDL_Event event;
 	SDL_Surface* screen, * charset, *obramowanie;
-	SDL_Surface* eti, *eti2, *wisnia, *progres, *bonus;
+	SDL_Surface* eti, *eti2, *wisnia, *progres, *bonus, *cialo2, *ogon2;
 	SDL_Texture* scrtex;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
@@ -57,6 +62,13 @@ struct stan_gry {
 	}snake;
 
 };
+//////////										
+////////// STRUKTURY							
+////////// 
+
+//////////										
+////////// FUNKCJE TIMERA							
+////////// 
 void funkcjetimer(stan_gry	&gra)
 {
 	gra.time.t2 = SDL_GetTicks();
@@ -73,6 +85,13 @@ void funkcjetimer(stan_gry	&gra)
 	};
 	gra.time.frames++;
 }
+//////////										
+////////// FUNKCJE TIMERA-koniec							
+////////// 
+
+//////////										
+////////// FUNCKJE MALOWANIA SZABLON							
+////////// 
 void DrawString(SDL_Surface* screen, int x, int y, const char* text,
 	SDL_Surface* charset) {
 	int px, py, c;
@@ -137,6 +156,13 @@ void DrawRectangle(SDL_Surface* screen, int x, int y, int l, int k,
 	for (i = y + 1; i < y + k - 1; i++)
 		DrawLine(screen, x + 1, i, l - 2, 1, 0, fillColor);
 };
+//////////										
+////////// FUNCKJE MALOWANIA SZABLON -koniec							
+////////// 
+
+//////////										
+////////// INICJALIZACJA SDL EKRANU RENDERERA 							
+////////// 
 void inicjalizacja(stan_gry& gra)
 {
 	int rc;
@@ -219,8 +245,36 @@ void inicjalizacja(stan_gry& gra)
 		SDL_DestroyRenderer(gra.renderer);
 		SDL_Quit();
 	};
+	gra.cialo2 = SDL_LoadBMP("./cialo2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(cialo2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.cialo2, true, 0x000000);
+	gra.ogon2 = SDL_LoadBMP("./ogon2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(ogon2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.ogon2, true, 0x000000);
 }
-void zmiana_pozycji(stan_gry &gra)
+
+//////////										
+////////// INICJALIZACJA SDL EKRANU RENDERERA itp-koniec							
+////////// 
+
+//////////										
+////////// PO£O¯ENIE WÊ¯A NA MAPIE								
+////////// 
+void zmiana_pozycji(stan_gry &gra) /// zmiana kierunku poruszania siê g³owy i reakcja na œciany
 {
 	if (gra.time.snake_speed_licznik >= gra.time.snake_speed)
 	{
@@ -277,7 +331,7 @@ void zmiana_pozycji(stan_gry &gra)
 		}
 	}
 }
-void zmiana_pozycji_ciala(stan_gry& gra, int i)
+void zmiana_pozycji_ciala(stan_gry& gra, int i) /// zmiana kierunku poruszania siê kolejnych czêœci cia³a w zale¿noœci od poprzednika
 {
 	
 	if (gra.time.snake_speed_licznik >= gra.time.snake_speed)
@@ -308,7 +362,7 @@ void zmiana_pozycji_ciala(stan_gry& gra, int i)
 				gra.snake.cialo_weza[i].y++;
 		}
 		if(gra.snake.cialo_weza[i].kierunek!=gra.snake.cialo_weza[i-1].kierunek)
-		if (((gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y + 30 || gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y - 30) && (gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x)) || ((gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x + 30 || gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x - 30) && (gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y)))
+		if (((gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y + 30 || gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y - 30) && (gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x)) || ((gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x + 30 || gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x - 30) && (gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y))) /// czy jest mo¿liwa zmiana kierunku
 		{
 			if (i == 1)
 				gra.snake.cialo_weza[i].kierunek = gra.snake.cialo_weza[i - 1].kierunek;
@@ -324,7 +378,7 @@ void zmiana_pozycji_ciala(stan_gry& gra, int i)
 		gra.time.snake_speed_licznik = 0;
 	}
 }
-void init_cialo(stan_gry& gra)
+void init_cialo(stan_gry& gra) /// inicjalizacja pocz¹tkowych pozycji cia³a wê¿a
 {
 	for (int i = 1; i < gra.snake.aktualny_rozmiar; i++)
 	{
@@ -334,7 +388,7 @@ void init_cialo(stan_gry& gra)
 		gra.snake.cialo_weza[i].pom = 1;
 	}
 }
-int czy_kolizja(stan_gry& gra)
+int czy_kolizja(stan_gry& gra) /// sprawdzanie kolizji g³owy z cia³em wê¿a
 {
 	for (int i = 1; i < gra.snake.aktualny_rozmiar; i++)
 	{
@@ -365,6 +419,16 @@ int czy_kolizja(stan_gry& gra)
 	}
 	return 0;
 }
+//////////										
+////////// PO£O¯ENIE WÊ¯A NA MAPIE-koniec									
+////////// 
+
+
+//////////										
+////////// ZAKONCZENIE ROZGRYWKI-KONIEC //////////										
+////////// popraw
+//////////
+//////////
 void rozpocznij_gre(stan_gry& gra)
 {
 	char text[128];
@@ -514,6 +578,15 @@ void rozpocznij_gre(stan_gry& gra)
 
 	}
 }
+//////////										
+////////// ZAKONCZENIE ROZGRYWKI-KONIEC //////////										
+////////// popraw
+//////////
+//////////
+
+//////////										
+////////// ZEBRANIE WISNI
+//////////
 int zebranie_wisni(stan_gry& gra)
 {
 	if (gra.snake.cialo_weza[0].kierunek == 1)
@@ -570,6 +643,13 @@ int zebranie_wisni2(stan_gry& gra)
 	}
 	return 0;
 }
+//////////										
+////////// ZEBRANIE WISNI-KONIEC
+//////////
+
+//////////										
+////////// ZMIANY WÊ¯A
+//////////
 void zmniejsz(stan_gry& gra, int bonus)
 {
 	
@@ -590,13 +670,6 @@ void zmniejsz(stan_gry& gra, int bonus)
 		gra.wisnia_bonusowa.y = rand() % 550 + 130;
 		gra.points++;
 	}
-}
-int czy_bonus()
-{
-	int pom = rand() % 100;
-	if (pom <= 50)
-		return 1;
-	return 0;
 }
 void powieksz(stan_gry& gra)
 {
@@ -636,7 +709,21 @@ void powieksz(stan_gry& gra)
 		gra.points++;
 	}
 }
-void licznik_progresu(stan_gry& gra, int& bonus)
+//////////										
+////////// ZMIANY WÊ¯A-KONIEC
+//////////
+
+//////////										
+////////// POJAWIANIE SIE BONUSU
+//////////
+int czy_bonus() ///szansa na pojawienie siê bonusu
+{
+	int pom = rand() % 100;
+	if (pom <= 50)
+		return 1;
+	return 0;
+}
+void licznik_progresu(stan_gry& gra, int& bonus) ///sprawdzanie czy pojawi³ siê bonus i zmiany progresu bonusu
 {
 	if (gra.time.progres_rand <= gra.time.worldTime)
 	{
@@ -664,7 +751,14 @@ void licznik_progresu(stan_gry& gra, int& bonus)
 		gra.wisnia_bonusowa.y = rand() % 550 + 130;
 	}
 }
-void zapisz(stan_gry& gra)
+//////////										
+////////// POJAWIANIE SIE BONUSU-KONIEC
+//////////
+
+//////////										
+////////// ZAPISYWANIE I ODCZYTANIE STANU GRY
+//////////
+void zapisz(stan_gry& gra) 
 {
 	FILE* plik;
 	plik = fopen("zapisgry.txt", "r+");
@@ -749,6 +843,13 @@ void odczyt(stan_gry& gra)
 	}
 	fclose(plik);
 }
+//////////										
+////////// ZAPISYWANIE I ODCZYTANIE STANU GRY -KONIEC
+//////////
+
+//////////										
+////////// INTERAKCJA UZYTKOWNIKA
+//////////
 void zdarzenie(stan_gry& gra)
 {
 	while (SDL_PollEvent(&gra.event)) {
@@ -794,6 +895,9 @@ void zdarzenie(stan_gry& gra)
 		};
 	};
 }
+//////////										
+////////// INTERAKCJA UZYTKOWNIKA -koniec
+//////////
 int main(int argc, char* argv[]) {
 	srand(time(NULL));
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -829,7 +933,12 @@ int main(int argc, char* argv[]) {
 
 		for (int i = 1; i < gra.snake.aktualny_rozmiar; i++)
 		{
-			DrawSurface(gra.screen, gra.eti2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			if(i==gra.snake.aktualny_rozmiar-1)
+				DrawSurface(gra.screen, gra.ogon2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			else if(i%2==0)
+				DrawSurface(gra.screen, gra.eti2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			else
+				DrawSurface(gra.screen, gra.cialo2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
 			zmiana_pozycji_ciala(gra, i);
 		}
 		DrawSurface(gra.screen, gra.wisnia, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
