@@ -32,7 +32,7 @@ struct timer {
 	double progres_rand = 1.00;
 };
 struct czesci_weza {
-	int x=500;
+	int x=510;
 	int y=300;
 	int kierunek=1;
 	int pom = 1;
@@ -57,6 +57,7 @@ struct stan_gry {
 	wisnie wisnia_powieksz;
 	wisnie wisnia_bonusowa;
 	struct {
+		int zmiana_kirunku = 1;
 		int aktualny_rozmiar=5;
 		czesci_weza cialo_weza[200];
 	}snake;
@@ -278,26 +279,27 @@ void zmiana_pozycji(stan_gry &gra) /// zmiana kierunku poruszania siê g³owy i re
 {
 	if (gra.time.snake_speed_licznik >= gra.time.snake_speed)
 	{
+		
 		if (gra.snake.cialo_weza[0].kierunek == 1)
 		{
-			if (gra.snake.cialo_weza[0].x + gra.eti->w / 2 == 1270)
+			if (gra.snake.cialo_weza[0].x + gra.eti->w / 2 == 1245)
 			{
-				if (gra.snake.cialo_weza[0].y - gra.eti->h / 2 == 683)
-					gra.snake.cialo_weza[0].kierunek = 3;
+				if (gra.snake.cialo_weza[0].y - gra.eti->h / 2 == 675)
+					gra.snake.zmiana_kirunku = 3;
 				else
-					gra.snake.cialo_weza[0].kierunek = 4;
+					gra.snake.zmiana_kirunku = 4;
 			}
 			else
 				gra.snake.cialo_weza[0].x++;
 		}
 		else if (gra.snake.cialo_weza[0].kierunek == 2)
 		{
-			if (gra.snake.cialo_weza[0].x - gra.eti->w / 2 == 10)
+			if (gra.snake.cialo_weza[0].x + gra.eti->w / 2 == 45)
 			{
-				if (gra.snake.cialo_weza[0].y - gra.eti->h / 2 == 66)
-					gra.snake.cialo_weza[0].kierunek = 4;
+				if (gra.snake.cialo_weza[0].y - gra.eti->h / 2 == 75)
+					gra.snake.zmiana_kirunku = 4;
 				else
-					gra.snake.cialo_weza[0].kierunek = 3;
+					gra.snake.zmiana_kirunku = 3;
 
 			}
 			else
@@ -305,12 +307,12 @@ void zmiana_pozycji(stan_gry &gra) /// zmiana kierunku poruszania siê g³owy i re
 		}
 		else if (gra.snake.cialo_weza[0].kierunek == 3)
 		{
-			if (gra.snake.cialo_weza[0].y - gra.eti->h / 2 == 66)
+			if (gra.snake.cialo_weza[0].y - gra.eti->h / 2 == 75)
 			{
-				if (gra.snake.cialo_weza[0].x + gra.eti->w / 2 == 1270)
-					gra.snake.cialo_weza[0].kierunek = 2;
+				if (gra.snake.cialo_weza[0].x + gra.eti->w / 2 == 1245)
+					gra.snake.zmiana_kirunku = 2;
 				else
-					gra.snake.cialo_weza[0].kierunek = 1;
+					gra.snake.zmiana_kirunku = 1;
 
 			}
 			else
@@ -318,12 +320,12 @@ void zmiana_pozycji(stan_gry &gra) /// zmiana kierunku poruszania siê g³owy i re
 		}
 		else if (gra.snake.cialo_weza[0].kierunek == 4)
 		{
-			if (gra.snake.cialo_weza[0].y - gra.eti->h / 2 == 683)
+			if (gra.snake.cialo_weza[0].y - gra.eti->h / 2 == 675)
 			{
-				if (gra.snake.cialo_weza[0].x - gra.eti->w / 2 == 10)
-					gra.snake.cialo_weza[0].kierunek = 1;
+				if (gra.snake.cialo_weza[0].x + gra.eti->w / 2 == 45)
+					gra.snake.zmiana_kirunku = 1;
 				else
-					gra.snake.cialo_weza[0].kierunek = 2;
+					gra.snake.zmiana_kirunku = 2;
 
 			}
 			else
@@ -339,25 +341,25 @@ void zmiana_pozycji_ciala(stan_gry& gra, int i) /// zmiana kierunku poruszania s
 		
 		if (gra.snake.cialo_weza[i].kierunek == 1)
 		{
-			if (gra.snake.cialo_weza[i].x + gra.eti2->w / 2 == 1270) gra.snake.cialo_weza[i].pom = 0;
+			if (gra.snake.cialo_weza[i].x + gra.eti2->w / 2 == 1245) gra.snake.cialo_weza[i].pom = 0;
 			else
 				gra.snake.cialo_weza[i].x++;
 		}
 		else if (gra.snake.cialo_weza[i].kierunek == 2)
 		{
-			if (gra.snake.cialo_weza[i].x - gra.eti2->w / 2 == 10) gra.snake.cialo_weza[i].pom = 0;
+			if (gra.snake.cialo_weza[i].x + gra.eti2->w / 2 == 45) gra.snake.cialo_weza[i].pom = 0;
 			else
 				gra.snake.cialo_weza[i].x--;
 		}
 		else if (gra.snake.cialo_weza[i].kierunek == 3)
 		{
-			if (gra.snake.cialo_weza[i].y - gra.eti2->h / 2 == 66) gra.snake.cialo_weza[i].pom = 0;
+			if (gra.snake.cialo_weza[i].y - gra.eti2->h / 2 == 75) gra.snake.cialo_weza[i].pom = 0;
 			else
 				gra.snake.cialo_weza[i].y--;
 		}
 		else if (gra.snake.cialo_weza[i].kierunek == 4)
 		{
-			if (gra.snake.cialo_weza[i].y - gra.eti2->h / 2 == 683) gra.snake.cialo_weza[i].pom = 0;
+			if (gra.snake.cialo_weza[i].y - gra.eti2->h / 2 == 675) gra.snake.cialo_weza[i].pom = 0;
 			else
 				gra.snake.cialo_weza[i].y++;
 		}
@@ -858,26 +860,34 @@ void zdarzenie(stan_gry& gra)
 			if (gra.event.key.keysym.sym == SDLK_ESCAPE) gra.quit = 1;
 			else if (gra.event.key.keysym.sym == SDLK_n)
 			{
-				gra.snake.cialo_weza[0].x = 500;
+				gra.snake.cialo_weza[0].x = 510;
 				gra.snake.cialo_weza[0].y = 300;
 				gra.time.worldTime = 0;
-				gra.snake.cialo_weza[0].kierunek = 1;
+				gra.snake.zmiana_kirunku = 1;
 			}
 			else if (gra.event.key.keysym.sym == SDLK_d)
 			{
-				gra.snake.cialo_weza[0].kierunek = 1;
+				if (gra.snake.cialo_weza[0].x + gra.eti2->w / 2 != 1245)
+				if(gra.snake.cialo_weza[0].kierunek!=2)
+				gra.snake.zmiana_kirunku = 1;
 			}
 			else if (gra.event.key.keysym.sym == SDLK_a)
 			{
-				gra.snake.cialo_weza[0].kierunek = 2;
+				if (gra.snake.cialo_weza[0].x + gra.eti2->w / 2 != 45)
+				if (gra.snake.cialo_weza[0].kierunek != 1)
+				gra.snake.zmiana_kirunku = 2;
 			}
 			else if (gra.event.key.keysym.sym == SDLK_w)
 			{
-				gra.snake.cialo_weza[0].kierunek = 3;
+				if (gra.snake.cialo_weza[0].y - gra.eti2->h / 2 != 75)
+				if (gra.snake.cialo_weza[0].kierunek != 4)
+				gra.snake.zmiana_kirunku = 3;
 			}
 			else if (gra.event.key.keysym.sym == SDLK_s)
 			{
-				gra.snake.cialo_weza[0].kierunek = 4;
+				if (gra.snake.cialo_weza[0].kierunek != 3)
+					if (gra.snake.cialo_weza[0].y - gra.eti2->h / 2 != 675)
+				gra.snake.zmiana_kirunku = 4;
 			}
 			else if (gra.event.key.keysym.sym == SDLK_p)
 			{
@@ -926,6 +936,11 @@ int main(int argc, char* argv[]) {
 		if (gra.time.czas_zmiany <= gra.time.licznik_zmiany)
 		{
 			zdarzenie(gra);
+		}
+		if (gra.snake.cialo_weza[0].x % 30 == 0 && gra.snake.cialo_weza[0].y % 30 == 0)
+		{
+			gra.snake.cialo_weza[0].kierunek = gra.snake.zmiana_kirunku;
+			if (gra.time.czas_zmiany <= gra.time.licznik_zmiany)
 			gra.time.licznik_zmiany = 0;
 		}
 		zmiana_pozycji(gra);
@@ -944,7 +959,7 @@ int main(int argc, char* argv[]) {
 		DrawSurface(gra.screen, gra.wisnia, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
 		DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH , 50, czerwony, niebieski); 
 		//maluje okno wyœwietlania tekstu
-		sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d    ", gra.time.worldTime, gra.time.fps, gra.points );
+		sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d   %d    %d %lf ", gra.time.worldTime, gra.time.fps, gra.points, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y, gra.time.licznik_zmiany);
 		DrawString(gra.screen, gra.screen->w / 4 - strlen(text) * 8 / 2, 10, text, gra.charset);
 		sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
 		DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 26, text, gra.charset);
