@@ -957,6 +957,14 @@ void rysuj_teleport(stan_gry& gra)
 	DrawRectangle(gra.screen, gra.teleport[0].x2, gra.teleport[0].y2-15, 2, 30, zielony, niebieski);
 	DrawRectangle(gra.screen, gra.teleport[1].x, gra.teleport[1].y-15, 2, 30, niebieski, niebieski);
 	DrawRectangle(gra.screen, gra.teleport[1].x2, gra.teleport[1].y2-15, 2, 30, inny, niebieski);
+	sprintf(text, "1");
+	DrawString(gra.screen, gra.teleport[0].x-1, gra.teleport[0].y-30, text, gra.charset);
+	sprintf(text, "1");
+	DrawString(gra.screen, gra.teleport[0].x2 - 1, gra.teleport[0].y2 - 30, text, gra.charset);
+	sprintf(text, "2");
+	DrawString(gra.screen, gra.teleport[1].x - 1, gra.teleport[1].y - 30, text, gra.charset);
+	sprintf(text, "2");
+	DrawString(gra.screen, gra.teleport[1].x2 - 1, gra.teleport[1].y2 - 30, text, gra.charset);
 }
 void teleportacja(stan_gry& gra)
 {
@@ -966,33 +974,69 @@ void teleportacja(stan_gry& gra)
 		{
 			if (gra.snake.cialo_weza[i].kierunek != 3 && gra.snake.cialo_weza[i].kierunek != 4)
 			{
-				if (gra.snake.cialo_weza[i].x == gra.teleport[0].x && gra.snake.cialo_weza[i].y == gra.teleport[0].y)
+				for (int j = 0; j < 2; j++)
 				{
-					
-					if (gra.teleport[0].x > gra.teleport[0].x2)
+					if (gra.snake.cialo_weza[i].x == gra.teleport[j].x && gra.snake.cialo_weza[i].y == gra.teleport[j].y)
 					{
-						gra.snake.cialo_weza[i].x -= (gra.teleport[0].x - gra.teleport[0].x2);
-						gra.snake.cialo_weza[i].y -= (gra.teleport[0].y - gra.teleport[0].y2);
+
+						if (gra.teleport[j].x > gra.teleport[j].x2)
+						{
+							if (gra.snake.cialo_weza[i].kierunek == 1)
+							{
+								gra.snake.cialo_weza[i].x -= (gra.teleport[j].x - gra.teleport[j].x2) - 1;
+								gra.snake.cialo_weza[i].y -= (gra.teleport[j].y - gra.teleport[j].y2);
+							}
+							else
+							{
+								gra.snake.cialo_weza[i].x -= (gra.teleport[j].x - gra.teleport[j].x2) + 1;
+								gra.snake.cialo_weza[i].y -= (gra.teleport[j].y - gra.teleport[j].y2);
+							}
+						}
+						else
+						{
+							if (gra.snake.cialo_weza[i].kierunek == 1)
+							{
+								gra.snake.cialo_weza[i].x += (gra.teleport[j].x2 - gra.teleport[j].x) + 1;
+								gra.snake.cialo_weza[i].y += (gra.teleport[j].y2 - gra.teleport[j].y);
+							}
+							else
+							{
+								gra.snake.cialo_weza[i].x += (gra.teleport[j].x2 - gra.teleport[j].x) - 1;
+								gra.snake.cialo_weza[i].y += (gra.teleport[j].y2 - gra.teleport[j].y);
+							}
+						}
 					}
-					else
+					else if (gra.snake.cialo_weza[i].x == gra.teleport[j].x2 && gra.snake.cialo_weza[i].y == gra.teleport[j].y2)
 					{
-						gra.snake.cialo_weza[i].x += (gra.teleport[0].x2 - gra.teleport[0].x);
-						gra.snake.cialo_weza[i].y += (gra.teleport[0].y2 - gra.teleport[0].y);
+						if (gra.teleport[j].x > gra.teleport[j].x2)
+						{
+							if (gra.snake.cialo_weza[i].kierunek == 1)
+							{
+								gra.snake.cialo_weza[i].x += (gra.teleport[j].x - gra.teleport[j].x2) + 1;
+								gra.snake.cialo_weza[i].y += (gra.teleport[j].y - gra.teleport[j].y2);
+							}
+							else
+							{
+								gra.snake.cialo_weza[i].x += (gra.teleport[j].x - gra.teleport[j].x2) - 1;
+								gra.snake.cialo_weza[i].y += (gra.teleport[j].y - gra.teleport[j].y2);
+							}
+						}
+						else
+						{
+							if (gra.snake.cialo_weza[i].kierunek == 1)
+							{
+								gra.snake.cialo_weza[i].x -= (gra.teleport[j].x2 - gra.teleport[j].x) - 1;
+								gra.snake.cialo_weza[i].y -= (gra.teleport[j].y2 - gra.teleport[j].y);
+							}
+							else
+							{
+								gra.snake.cialo_weza[i].x -= (gra.teleport[j].x2 - gra.teleport[j].x) + 1;
+								gra.snake.cialo_weza[i].y -= (gra.teleport[j].y2 - gra.teleport[j].y);
+							}
+						}
 					}
 				}
-				 if (gra.snake.cialo_weza[i].x == gra.teleport[1].x && gra.snake.cialo_weza[i].y == gra.teleport[1].y)
-				{
-					if (gra.teleport[1].x > gra.teleport[1].x2)
-					{
-						gra.snake.cialo_weza[i].x -= (gra.teleport[1].x - gra.teleport[1].x2)+30;
-						gra.snake.cialo_weza[i].y -= (gra.teleport[1].y - gra.teleport[1].y2);
-					}
-					else
-					{
-						gra.snake.cialo_weza[i].x += (gra.teleport[1].x2 - gra.teleport[1].x);
-						gra.snake.cialo_weza[i].y += (gra.teleport[1].y2 - gra.teleport[1].y);
-					}
-				}
+				 
 			}
 		}
 	
