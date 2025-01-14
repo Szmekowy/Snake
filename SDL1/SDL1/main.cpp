@@ -24,12 +24,13 @@ extern "C"
 ////////// 
 struct timer {
 	int  t1=SDL_GetTicks() , t2=0, frames=0;
-	double delta, worldTime=0, fpsTimer=0, fps=0, distance=0, snake_speed=0.008, snake_speed_licznik=0;
-	double czas_zmiany = 0.4, licznik_zmiany = 0.4; 
+	double delta, worldTime=0, fpsTimer=0, fps=0, snake_speed=0.008, snake_speed_licznik=0;
+	double czas_zmiany = 0.45, licznik_zmiany = 0.45; 
 	double speedup_limit = 5.0;
 	double speedup = 1.15;
 	double progres_delay = 0.019;
 	double progres_rand = 1.00;
+	double slowdown = 1.5;
 };
 struct teleporty {
 	int x;
@@ -46,12 +47,14 @@ struct czesci_weza {
 struct wisnie {
 	int x = 700;
 	int y = 300;
+	int punkty = 1;
 };
 struct stan_gry {
 	timer time;
 	SDL_Event event;
 	SDL_Surface* screen, * charset, *obramowanie;
 	SDL_Surface* eti, *eti2, *wisnia, *progres, *bonus, *cialo2, *ogon2;
+	SDL_Surface* g1, * g2, * g3, * g4, *cd1, *cd2, *cm1, *cm2, *og1, *og2, *og3, *og4;
 	SDL_Texture* scrtex;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
@@ -273,6 +276,137 @@ void inicjalizacja(stan_gry& gra)
 		SDL_Quit();
 	};
 	SDL_SetColorKey(gra.ogon2, true, 0x000000);
+	gra.g3 = SDL_LoadBMP("./glowa3.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(glowa3.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.g3, true, 0x000000);
+	gra.g4 = SDL_LoadBMP("./glowa4.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(glowa4.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.g4, true, 0x000000);
+	gra.g2 = SDL_LoadBMP("./glowa2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(glowa2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.g2, true, 0x000000);
+	gra.g1 = SDL_LoadBMP("./glowa1.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(glowa1.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.g1, true, 0x000000);
+	gra.cd1 = SDL_LoadBMP("./cialoD1.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(glowa1.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.cd1, true, 0x000000);
+	gra.cd2 = SDL_LoadBMP("./cialoD2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(cialoD2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.cd2, true, 0x000000);
+	gra.cm1 = SDL_LoadBMP("./cialoM1.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(cialoM1.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.cm1, true, 0x000000);
+	gra.cm2 = SDL_LoadBMP("./cialoM2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(cialoM2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.cm1, true, 0x000000);
+	gra.cm2 = SDL_LoadBMP("./cialoM2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(cialoM2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.cm2, true, 0x000000);
+
+	gra.og1 = SDL_LoadBMP("./ogon1.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(ogon1.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.og1, true, 0x000000);
+	gra.og2 = SDL_LoadBMP("./ogon2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(ogon2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.og2, true, 0x000000);
+	gra.og3 = SDL_LoadBMP("./ogon3.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(ogon3.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.og3, true, 0x000000);
+	gra.og4 = SDL_LoadBMP("./ogon4.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(ogon4.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.og4, true, 0x000000);
 }
 
 //////////										
@@ -689,8 +823,8 @@ void zmniejsz(stan_gry& gra, int bonus)
 		int pom = rand() % 2 + 1;
 		if (pom == 1)
 		{
-			gra.time.snake_speed *= 1.5;
-			gra.time.czas_zmiany *= 1.5;
+			gra.time.snake_speed *= gra.time.slowdown;
+			gra.time.czas_zmiany *= gra.time.slowdown;
 		}
 		else if(gra.snake.aktualny_rozmiar>1)
 		{
@@ -699,7 +833,7 @@ void zmniejsz(stan_gry& gra, int bonus)
 		
 		gra.wisnia_bonusowa.x = rand() % 1200 + 30;
 		gra.wisnia_bonusowa.y = rand() % 550 + 130;
-		gra.points++;
+		gra.points+=gra.wisnia_bonusowa.punkty;
 	}
 }
 void powieksz(stan_gry& gra)
@@ -737,7 +871,7 @@ void powieksz(stan_gry& gra)
 			gra.snake.cialo_weza[gra.snake.aktualny_rozmiar - 1].kierunek = 4;
 			gra.snake.cialo_weza[gra.snake.aktualny_rozmiar - 1].pom = 1;
 		}
-		gra.points++;
+		gra.points+=gra.wisnia_powieksz.punkty;
 	}
 }
 //////////										
@@ -1041,6 +1175,26 @@ void teleportacja(stan_gry& gra)
 		}
 	
 }
+void config(stan_gry& gra)
+{
+	FILE* plik;
+	plik = fopen("config.txt", "r");
+	fscanf(plik, "%d", &gra.snake.aktualny_rozmiar);
+	fscanf(plik, "%lf", &gra.time.speedup);
+	fscanf(plik, "%lf", &gra.time.slowdown);
+	fscanf(plik, "%lf", &gra.time.progres_delay);
+	fscanf(plik, "%lf", &gra.time.snake_speed);
+	fscanf(plik, "%lf", &gra.time.speedup_limit);
+	fscanf(plik, "%d", &gra.wisnia_bonusowa.punkty);
+	fscanf(plik, "%d", &gra.wisnia_powieksz.punkty);
+
+	fclose(plik);
+}
+void init_wisnia_points(stan_gry& gra)
+{
+	gra.wisnia_bonusowa.punkty = 2;
+	gra.wisnia_powieksz.punkty = 1;
+}
 int main(int argc, char* argv[]) {
 	srand(time(NULL));
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -1059,6 +1213,8 @@ int main(int argc, char* argv[]) {
 	gra.wisnia_bonusowa.x = rand() % 1200 + 30;
 	gra.wisnia_bonusowa.y = rand() % 550 + 130;
 	init_teleport(gra);
+	init_wisnia_points(gra);
+	config(gra);
 	while (!gra.quit) {
 		
 		SDL_FillRect(gra.screen, NULL, czarny);
@@ -1068,9 +1224,26 @@ int main(int argc, char* argv[]) {
 		funkcjetimer(gra);
 		rozpocznij_gre(gra);
 		powieksz(gra);
-		DrawSurface(gra.screen, gra.eti, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+		if (gra.snake.cialo_weza[0].kierunek == 1)
+		{
+			DrawSurface(gra.screen, gra.g1, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+		}
+		else if (gra.snake.cialo_weza[0].kierunek == 2)
+		{
+			DrawSurface(gra.screen, gra.g2, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+		}
+		else if (gra.snake.cialo_weza[0].kierunek == 3)
+		{
+			DrawSurface(gra.screen, gra.g3, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+		}
+		else if (gra.snake.cialo_weza[0].kierunek == 4)
+		{
+			DrawSurface(gra.screen, gra.g4, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+		}
+	
 		if (gra.time.czas_zmiany <= gra.time.licznik_zmiany)
 		{
+			if(gra.snake.cialo_weza[0].kierunek == gra.snake.zmiana_kierunku_glowy)
 			zdarzenie(gra);
 		}
 		if (gra.snake.cialo_weza[0].x % 30 == 0 && gra.snake.cialo_weza[0].y % 30 == 0)
@@ -1084,12 +1257,29 @@ int main(int argc, char* argv[]) {
 
 		for (int i = 1; i < gra.snake.aktualny_rozmiar; i++)
 		{
-			if(i==gra.snake.aktualny_rozmiar-1)
-				DrawSurface(gra.screen, gra.ogon2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-			else if(i%2==0)
-				DrawSurface(gra.screen, gra.eti2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			if (i == gra.snake.aktualny_rozmiar - 1)
+			{
+				if (gra.snake.cialo_weza[i].kierunek == 1)
+					DrawSurface(gra.screen, gra.og1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+				else if (gra.snake.cialo_weza[i].kierunek == 2)
+					DrawSurface(gra.screen, gra.og2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+				else if (gra.snake.cialo_weza[i].kierunek == 3)
+					DrawSurface(gra.screen, gra.og3, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+				else if (gra.snake.cialo_weza[i].kierunek == 4)
+					DrawSurface(gra.screen, gra.og4, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			}
+			else if (i % 2 == 1)
+			{
+				if(gra.snake.cialo_weza[i].kierunek==1|| gra.snake.cialo_weza[i].kierunek == 2)
+				DrawSurface(gra.screen, gra.cd2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+				else 
+					DrawSurface(gra.screen, gra.cd1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			}
 			else
-				DrawSurface(gra.screen, gra.cialo2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+				if (gra.snake.cialo_weza[i].kierunek == 1 || gra.snake.cialo_weza[i].kierunek == 2)
+					DrawSurface(gra.screen, gra.cm2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+				else
+					DrawSurface(gra.screen, gra.cm1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
 			zmiana_pozycji_ciala(gra, i);
 		}
 		DrawSurface(gra.screen, gra.wisnia, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
