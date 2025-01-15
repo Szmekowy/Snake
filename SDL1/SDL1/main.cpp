@@ -25,7 +25,7 @@ extern "C"
 struct timer {
 	int  t1=SDL_GetTicks() , t2=0, frames=0;
 	double delta, worldTime=0, fpsTimer=0, fps=0, snake_speed=0.008, snake_speed_licznik=0;
-	double czas_zmiany = 0.4, licznik_zmiany = 0.4; 
+	double czas_zmiany = 0.6, licznik_zmiany = 0.6; 
 	double speedup_limit = 5.0;
 	double speedup = 1.15;
 	double progres_delay = 0.019;
@@ -475,6 +475,124 @@ void zmiana_pozycji(stan_gry &gra) /// zmiana kierunku poruszania siê g³owy i re
 		}
 	}
 }
+void mechanika_zjadania(stan_gry& gra, int i)
+{
+	if (i == 2)
+	{
+		if (gra.snake.cialo_weza[i].kierunek != gra.snake.cialo_weza[i + 1].kierunek)
+		{
+			if (abs(gra.snake.cialo_weza[i].x - gra.snake.cialo_weza[i + 1].x) > 40)
+				gra.snake.aktualny_rozmiar = 3;
+			else if (abs(gra.snake.cialo_weza[i].y - gra.snake.cialo_weza[i + 1].y) > 40)
+				gra.snake.aktualny_rozmiar = 3;
+		}
+		
+	}
+}
+void podstawowa_zmiana_kierunku(stan_gry& gra, int i)
+{
+	if (((gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y + 30 || gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y - 30) && (gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x)) || ((gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x + 30 || gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x - 30) && (gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y))) /// czy jest mo¿liwa zmiana kierunku
+	{
+
+		if (i == 1)
+		{
+			gra.snake.pop = gra.snake.cialo_weza[i].kierunek;
+			gra.snake.cialo_weza[i].kierunek = gra.snake.cialo_weza[i - 1].kierunek;
+		}
+		else if (gra.snake.cialo_weza[i].pom == 0)
+		{
+
+
+
+			gra.snake.cialo_weza[i].kierunek = gra.snake.cialo_weza[i - 1].kierunek;
+			gra.snake.cialo_weza[i].pom = 1;
+
+		}
+
+		else
+			gra.snake.cialo_weza[i].pom = 0;
+	}
+}
+void zmiana_parametrow_skretu(stan_gry& gra, int i)
+{
+	gra.snake.cialo_weza[i].pom = 0;
+	if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
+		gra.time.licznik_zmiany = 0;
+}
+void szybka_zmiana_kierunku(stan_gry& gra, int i)
+{
+	if (((gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y + 30 || gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y - 30) && (gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x)) || ((gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x + 30 || gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x - 30) && (gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y)))
+	{
+		if (gra.snake.cialo_weza[i].kierunek == 1)
+		{
+			if (gra.snake.cialo_weza[i].kierunek == gra.snake.cialo_weza[i - 2].kierunek)
+			{
+				if (gra.snake.cialo_weza[i].y + 30 == gra.snake.cialo_weza[i - 2].y)
+				{
+					gra.snake.cialo_weza[i].kierunek = 4;
+					zmiana_parametrow_skretu(gra, i);
+				}
+				else if (gra.snake.cialo_weza[i].y - 30 == gra.snake.cialo_weza[i - 2].y)
+				{
+					gra.snake.cialo_weza[i].kierunek = 3;
+					zmiana_parametrow_skretu(gra, i);
+
+				}
+
+			}
+
+		}
+		else if (gra.snake.cialo_weza[i].kierunek == 2)
+		{
+			if (gra.snake.cialo_weza[i].kierunek == gra.snake.cialo_weza[i - 2].kierunek)
+			{
+				if (gra.snake.cialo_weza[i].y - 30 == gra.snake.cialo_weza[i - 2].y)
+				{
+					gra.snake.cialo_weza[i].kierunek = 3;
+					zmiana_parametrow_skretu(gra, i);
+				}
+				else if (gra.snake.cialo_weza[i].y + 30 == gra.snake.cialo_weza[i - 2].y)
+				{
+					gra.snake.cialo_weza[i].kierunek = 4;
+					zmiana_parametrow_skretu(gra, i);
+				}
+			}
+		}
+		else if (gra.snake.cialo_weza[i].kierunek == 3)
+		{
+			if (gra.snake.cialo_weza[i].kierunek == gra.snake.cialo_weza[i - 2].kierunek)
+			{
+				if (gra.snake.cialo_weza[i].x - 30 == gra.snake.cialo_weza[i - 2].x)
+				{
+					gra.snake.cialo_weza[i].kierunek = 2;
+					zmiana_parametrow_skretu(gra, i);
+
+				}
+				else if (gra.snake.cialo_weza[i].x + 30 == gra.snake.cialo_weza[i - 2].x)
+				{
+					gra.snake.cialo_weza[i].kierunek = 1;
+					zmiana_parametrow_skretu(gra, i);
+				}
+			}
+		}
+		else if (gra.snake.cialo_weza[i].kierunek == 4)
+		{
+			if (gra.snake.cialo_weza[i].kierunek == gra.snake.cialo_weza[i - 2].kierunek)
+			{
+				if (gra.snake.cialo_weza[i].x - 30 == gra.snake.cialo_weza[i - 2].x)
+				{
+					gra.snake.cialo_weza[i].kierunek = 2;
+					zmiana_parametrow_skretu(gra, i);
+				}
+				else if (gra.snake.cialo_weza[i].x + 30 == gra.snake.cialo_weza[i - 2].x)
+				{
+					gra.snake.cialo_weza[i].kierunek = 1;
+					zmiana_parametrow_skretu(gra, i);
+				}
+			}
+		}
+	}
+}
 void zmiana_pozycji_ciala(stan_gry& gra, int i) /// zmiana kierunku poruszania siê kolejnych czêœci cia³a w zale¿noœci od poprzednika
 {
 	
@@ -507,132 +625,14 @@ void zmiana_pozycji_ciala(stan_gry& gra, int i) /// zmiana kierunku poruszania s
 		}
 		if (gra.snake.cialo_weza[i].kierunek != gra.snake.cialo_weza[i - 1].kierunek)
 		{
-			if (((gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y + 30 || gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y - 30) && (gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x)) || ((gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x + 30 || gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x - 30) && (gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y))) /// czy jest mo¿liwa zmiana kierunku
-			{
-
-				if (i == 1)
-				{
-					gra.snake.pop = gra.snake.cialo_weza[i].kierunek;
-					gra.snake.cialo_weza[i].kierunek = gra.snake.cialo_weza[i - 1].kierunek;
-				}
-				else if (gra.snake.cialo_weza[i].pom == 0)
-				{
-
-
-
-					gra.snake.cialo_weza[i].kierunek = gra.snake.cialo_weza[i - 1].kierunek;
-					gra.snake.cialo_weza[i].pom = 1;
-
-				}
-
-				else
-					gra.snake.cialo_weza[i].pom = 0;
-			}
+			podstawowa_zmiana_kierunku(gra, i);
 		}
 		else
 		{
-			if (((gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y + 30 || gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y - 30) && (gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x)) || ((gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x + 30 || gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x - 30) && (gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y)))
-			{
-				if (gra.snake.cialo_weza[i].kierunek == 1)
-				{
-					if (gra.snake.cialo_weza[i].kierunek == gra.snake.cialo_weza[i - 2].kierunek)
-					{
-						if (gra.snake.cialo_weza[i].y + 30 == gra.snake.cialo_weza[i - 2].y)
-						{
-							gra.snake.cialo_weza[i].pom = 0;
-							gra.snake.cialo_weza[i].kierunek = 4;
-							if(gra.time.licznik_zmiany>=gra.time.czas_zmiany)
-							gra.time.licznik_zmiany = 0;
-							
-						}
-						else if (gra.snake.cialo_weza[i].y - 30 == gra.snake.cialo_weza[i - 2].y)
-						{
-							gra.snake.cialo_weza[i].pom = 0;
-							gra.snake.cialo_weza[i].kierunek = 3;
-							if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
-							gra.time.licznik_zmiany = 0;
-
-						}
-					
-					}
-					
-				}
-				else if (gra.snake.cialo_weza[i].kierunek == 2)
-				{
-					if (gra.snake.cialo_weza[i].kierunek == gra.snake.cialo_weza[i - 2].kierunek)
-					{
-						if (gra.snake.cialo_weza[i].y - 30 == gra.snake.cialo_weza[i - 2].y)
-						{
-							gra.snake.cialo_weza[i].pom = 0;
-							gra.snake.cialo_weza[i].kierunek = 3;
-							if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
-								gra.time.licznik_zmiany = 0;
-
-						}
-							else if (gra.snake.cialo_weza[i].y + 30 == gra.snake.cialo_weza[i - 2].y)
-							{
-								gra.snake.cialo_weza[i].pom = 0;
-								gra.snake.cialo_weza[i].kierunek = 4;
-								if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
-									gra.time.licznik_zmiany = 0;
-
-							}
-
-						
-					}
-
-				}
-				else if (gra.snake.cialo_weza[i].kierunek == 3)
-				{
-					if (gra.snake.cialo_weza[i].kierunek == gra.snake.cialo_weza[i - 2].kierunek)
-					{
-						if (gra.snake.cialo_weza[i].x - 30 == gra.snake.cialo_weza[i - 2].x)
-						{
-							gra.snake.cialo_weza[i].pom = 0;
-							gra.snake.cialo_weza[i].kierunek = 2;
-							if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
-							gra.time.licznik_zmiany = 0;
-
-						}
-						else if (gra.snake.cialo_weza[i].x + 30 == gra.snake.cialo_weza[i - 2].x)
-						{
-							gra.snake.cialo_weza[i].pom = 0;
-							gra.snake.cialo_weza[i].kierunek = 1;
-							if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
-							gra.time.licznik_zmiany = 0;
-
-						}
-
-					}
-
-				}
-				else if (gra.snake.cialo_weza[i].kierunek == 4)
-				{
-					if (gra.snake.cialo_weza[i].kierunek == gra.snake.cialo_weza[i - 2].kierunek)
-					{
-						if (gra.snake.cialo_weza[i].x - 30 == gra.snake.cialo_weza[i - 2].x)
-						{
-							gra.snake.cialo_weza[i].pom = 0;
-							gra.snake.cialo_weza[i].kierunek = 2;
-							if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
-							gra.time.licznik_zmiany = 0;
-
-						}
-						else if (gra.snake.cialo_weza[i].x + 30 == gra.snake.cialo_weza[i - 2].x)
-						{
-							gra.snake.cialo_weza[i].pom = 0;
-							gra.snake.cialo_weza[i].kierunek = 1;
-							if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
-							gra.time.licznik_zmiany = 0;
-
-						}
-
-					}
-
-				}
-			}
+			szybka_zmiana_kierunku(gra, i);
 		}
-		if(i==gra.snake.aktualny_rozmiar-1)
+		mechanika_zjadania(gra, i);
+		if(i==gra.snake.aktualny_rozmiar-1) //wyzerowanie licznika predkosci jezeli zosta³ zakoñczony ruch ca³ego wê¿a
 		gra.time.snake_speed_licznik = 0;
 	}
 }
@@ -680,7 +680,21 @@ int czy_kolizja(stan_gry& gra) /// sprawdzanie kolizji g³owy z cia³em wê¿a
 //////////										
 ////////// PO£O¯ENIE WÊ¯A NA MAPIE-koniec									
 ////////// 
+void config(stan_gry& gra)
+{
+	FILE* plik;
+	plik = fopen("config.txt", "r");
+	fscanf(plik, "%d", &gra.snake.aktualny_rozmiar);
+	fscanf(plik, "%lf", &gra.time.speedup);
+	fscanf(plik, "%lf", &gra.time.slowdown);
+	fscanf(plik, "%lf", &gra.time.progres_delay);
+	fscanf(plik, "%lf", &gra.time.snake_speed);
+	fscanf(plik, "%lf", &gra.time.speedup_limit);
+	fscanf(plik, "%d", &gra.wisnia_bonusowa.punkty);
+	fscanf(plik, "%d", &gra.wisnia_powieksz.punkty);
 
+	fclose(plik);
+}
 void nowa_gra(stan_gry& gra)
 {
 	gra.snake.zmiana_kierunku_glowy = 1;
@@ -698,6 +712,8 @@ void nowa_gra(stan_gry& gra)
 	gra.time.czas_zmiany = 0.4;
 	gra.czerwony_bonus = 0;
 	gra.time.t1 = SDL_GetTicks();
+
+	config(gra);
 	init_cialo(gra);
 }
 //////////										
@@ -1121,6 +1137,7 @@ void odczyt(stan_gry& gra)
 		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].pom);
 		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].kierunek);
 	}
+	gra.snake.zmiana_kierunku_glowy = gra.snake.cialo_weza[0].kierunek;
 	fclose(plik);
 }
 //////////										
@@ -1217,8 +1234,6 @@ void rysuj_teleport(stan_gry& gra)
 }
 void teleportacja(stan_gry& gra)
 {
-
-	
 		for (int i = 0; i < gra.snake.aktualny_rozmiar; i++)
 		{
 			if (gra.snake.cialo_weza[i].kierunek != 3 && gra.snake.cialo_weza[i].kierunek != 4)
@@ -1290,25 +1305,86 @@ void teleportacja(stan_gry& gra)
 		}
 	
 }
-void config(stan_gry& gra)
-{
-	FILE* plik;
-	plik = fopen("config.txt", "r");
-	fscanf(plik, "%d", &gra.snake.aktualny_rozmiar);
-	fscanf(plik, "%lf", &gra.time.speedup);
-	fscanf(plik, "%lf", &gra.time.slowdown);
-	fscanf(plik, "%lf", &gra.time.progres_delay);
-	fscanf(plik, "%lf", &gra.time.snake_speed);
-	fscanf(plik, "%lf", &gra.time.speedup_limit);
-	fscanf(plik, "%d", &gra.wisnia_bonusowa.punkty);
-	fscanf(plik, "%d", &gra.wisnia_powieksz.punkty);
 
-	fclose(plik);
-}
 void init_wisnia_points(stan_gry& gra)
 {
 	gra.wisnia_bonusowa.punkty = 2;
 	gra.wisnia_powieksz.punkty = 1;
+}
+void rysowanie_glowy_weza(stan_gry& gra)
+{
+	if (gra.snake.cialo_weza[0].kierunek == 1)
+	{
+		DrawSurface(gra.screen, gra.g1, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+	}
+	else if (gra.snake.cialo_weza[0].kierunek == 2)
+	{
+		DrawSurface(gra.screen, gra.g2, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+	}
+	else if (gra.snake.cialo_weza[0].kierunek == 3)
+	{
+		DrawSurface(gra.screen, gra.g3, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+	}
+	else if (gra.snake.cialo_weza[0].kierunek == 4)
+	{
+		DrawSurface(gra.screen, gra.g4, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
+	}
+	zmiana_pozycji(gra);
+}
+void rysowanie_weza(stan_gry& gra)
+{
+	for (int i = 1; i < gra.snake.aktualny_rozmiar; i++)
+	{
+		if (i == gra.snake.aktualny_rozmiar - 1)
+		{
+			if (gra.snake.cialo_weza[i].kierunek == 1)
+				DrawSurface(gra.screen, gra.og1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			else if (gra.snake.cialo_weza[i].kierunek == 2)
+				DrawSurface(gra.screen, gra.og2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			else if (gra.snake.cialo_weza[i].kierunek == 3)
+				DrawSurface(gra.screen, gra.og3, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			else if (gra.snake.cialo_weza[i].kierunek == 4)
+				DrawSurface(gra.screen, gra.og4, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+		}
+		else if (i % 2 == 1)
+		{
+			if (gra.snake.cialo_weza[i].kierunek == 1 || gra.snake.cialo_weza[i].kierunek == 2)
+				DrawSurface(gra.screen, gra.cd2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			else
+				DrawSurface(gra.screen, gra.cd1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+		}
+		else
+			if (gra.snake.cialo_weza[i].kierunek == 1 || gra.snake.cialo_weza[i].kierunek == 2)
+				DrawSurface(gra.screen, gra.cm2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+			else
+				DrawSurface(gra.screen, gra.cm1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
+		zmiana_pozycji_ciala(gra, i);
+	}
+}
+void nowy_kierunek(stan_gry& gra)
+{
+	if (gra.time.czas_zmiany <= gra.time.licznik_zmiany)
+	{
+		if (gra.snake.cialo_weza[0].kierunek == gra.snake.zmiana_kierunku_glowy)
+			zdarzenie(gra);
+	}
+	if (gra.snake.cialo_weza[0].x % 30 == 0 && gra.snake.cialo_weza[0].y % 30 == 0)
+	{
+		gra.snake.cialo_weza[0].kierunek = gra.snake.zmiana_kierunku_glowy;
+	}
+}
+void rysuj_info(stan_gry& gra)
+{
+	char text[128];
+	int czarny = SDL_MapRGB(gra.screen->format, 0x00, 0x00, 0x00);
+	int zielony = SDL_MapRGB(gra.screen->format, 0x00, 0xFF, 0x00);
+	int czerwony = SDL_MapRGB(gra.screen->format, 0xFF, 0x00, 0x00);
+	int niebieski = SDL_MapRGB(gra.screen->format, 0x11, 0x11, 0xCC);
+	DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH, 50, czerwony, niebieski);
+	sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d   %d    %d %d %d ", gra.time.worldTime, gra.time.fps, gra.points, gra.snake.cialo_weza[1].pom, gra.snake.cialo_weza[2].pom, gra.snake.cialo_weza[1].kierunek, gra.snake.cialo_weza[2].kierunek);
+	DrawString(gra.screen, gra.screen->w / 4 - strlen(text) * 8 / 2, 10, text, gra.charset);
+	sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
+	DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 26, text, gra.charset);
 }
 int main(int argc, char* argv[]) {
 	srand(time(NULL));
@@ -1339,69 +1415,11 @@ int main(int argc, char* argv[]) {
 		funkcjetimer(gra);
 		rozpocznij_gre(gra);
 		powieksz(gra);
-		if (gra.snake.cialo_weza[0].kierunek == 1)
-		{
-			DrawSurface(gra.screen, gra.g1, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
-		}
-		else if (gra.snake.cialo_weza[0].kierunek == 2)
-		{
-			DrawSurface(gra.screen, gra.g2, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
-		}
-		else if (gra.snake.cialo_weza[0].kierunek == 3)
-		{
-			DrawSurface(gra.screen, gra.g3, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
-		}
-		else if (gra.snake.cialo_weza[0].kierunek == 4)
-		{
-			DrawSurface(gra.screen, gra.g4, gra.snake.cialo_weza[0].x, gra.snake.cialo_weza[0].y);
-		}
-	
-		if (gra.time.czas_zmiany <= gra.time.licznik_zmiany)
-		{
-			if(gra.snake.cialo_weza[0].kierunek == gra.snake.zmiana_kierunku_glowy)
-			zdarzenie(gra);
-		}
-		if (gra.snake.cialo_weza[0].x % 30 == 0 && gra.snake.cialo_weza[0].y % 30 == 0)
-		{
-			
-			gra.snake.cialo_weza[0].kierunek = gra.snake.zmiana_kierunku_glowy;
-			
-		}
-		zmiana_pozycji(gra);
-		
-		for (int i = 1; i < gra.snake.aktualny_rozmiar; i++)
-		{
-			if (i == gra.snake.aktualny_rozmiar - 1)
-			{
-				if (gra.snake.cialo_weza[i].kierunek == 1)
-					DrawSurface(gra.screen, gra.og1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-				else if (gra.snake.cialo_weza[i].kierunek == 2)
-					DrawSurface(gra.screen, gra.og2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-				else if (gra.snake.cialo_weza[i].kierunek == 3)
-					DrawSurface(gra.screen, gra.og3, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-				else if (gra.snake.cialo_weza[i].kierunek == 4)
-					DrawSurface(gra.screen, gra.og4, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-			}
-			else if (i % 2 == 1)
-			{
-				if(gra.snake.cialo_weza[i].kierunek==1|| gra.snake.cialo_weza[i].kierunek == 2)
-				DrawSurface(gra.screen, gra.cd2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-				else 
-					DrawSurface(gra.screen, gra.cd1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-			}
-			else
-				if (gra.snake.cialo_weza[i].kierunek == 1 || gra.snake.cialo_weza[i].kierunek == 2)
-					DrawSurface(gra.screen, gra.cm2, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-				else
-					DrawSurface(gra.screen, gra.cm1, gra.snake.cialo_weza[i].x, gra.snake.cialo_weza[i].y);
-			zmiana_pozycji_ciala(gra, i);
-		}
+		nowy_kierunek(gra);
+		rysowanie_glowy_weza(gra);
+		rysowanie_weza(gra);
 		DrawSurface(gra.screen, gra.wisnia, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
-		DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH , 50, czerwony, niebieski); 
-		sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d   %d    %d %d %d ", gra.time.worldTime, gra.time.fps, gra.points, gra.snake.cialo_weza[1].pom, gra.snake.cialo_weza[2].pom, gra.snake.cialo_weza[1].kierunek, gra.snake.cialo_weza[2].kierunek);
-		DrawString(gra.screen, gra.screen->w / 4 - strlen(text) * 8 / 2, 10, text, gra.charset);
-		sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
-		DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 26, text, gra.charset);
+		rysuj_info(gra);
 		DrawSurface(gra.screen, gra.progres, 1000, 25);
 		DrawRectangle(gra.screen, 870, 8, gra.total_progres, 34, czerwony, czerwony);
 		if (gra.czerwony_bonus == 1)
@@ -1416,8 +1434,6 @@ int main(int argc, char* argv[]) {
 		{
 			gra.time.snake_speed /= gra.time.speedup;
 			gra.time.speedup_limit+=5;
-			if(gra.time.czas_zmiany>0.2)
-			gra.time.czas_zmiany /= gra.time.speedup;
 		}
 		licznik_progresu(gra, gra.czerwony_bonus);
 		
