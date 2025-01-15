@@ -28,9 +28,13 @@ struct timer {
 	double czas_zmiany = 0.6, licznik_zmiany = 0.6; 
 	double speedup_limit = 5.0;
 	double speedup = 1.15;
-	double progres_delay = 0.019;
+	double progres_delay = 0.039;
 	double progres_rand = 1.00;
 	double slowdown = 1.5;
+	double czas_wisnia = 1.5;
+	double licznik_czas_wisnia = 0;
+	double czas_wisnia_czerwona = 1.5;
+	double licznik_czas_wisnia_czerwona = 0;
 };
 struct teleporty {
 	int x;
@@ -45,6 +49,7 @@ struct czesci_weza {
 	int pom = 1;
 };
 struct wisnie {
+	int bitmapa = 1;
 	int x = 700;
 	int y = 300;
 	int punkty = 1;
@@ -54,7 +59,7 @@ struct stan_gry {
 	SDL_Event event;
 	SDL_Surface* screen, * charset, *obramowanie;
 	SDL_Surface* eti, *eti2, *wisnia, *progres, *bonus, *cialo2, *ogon2;
-	SDL_Surface* g1, * g2, * g3, * g4, *cd1, *cd2, *cm1, *cm2, *og1, *og2, *og3, *og4;
+	SDL_Surface* g1, * g2, * g3, * g4, *cd1, *cd2, *cm1, *cm2, *og1, *og2, *og3, *og4, *wb1, *wb2, *wb3, *wcz1, *wcz2, *wcz3;
 	SDL_Texture* scrtex;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
@@ -90,6 +95,8 @@ void funkcjetimer(stan_gry	&gra)
 	gra.time.licznik_zmiany += gra.time.delta;
 	gra.time.worldTime += gra.time.delta;
 	gra.time.fpsTimer += gra.time.delta;
+	gra.time.licznik_czas_wisnia += gra.time.delta;
+	gra.time.licznik_czas_wisnia_czerwona += gra.time.delta;
 	if (gra.time.fpsTimer > 0.5) {
 		gra.time.fps = gra.time.frames * 2;
 		gra.time.frames = 0;
@@ -408,6 +415,68 @@ void inicjalizacja(stan_gry& gra)
 		SDL_Quit();
 	};
 	SDL_SetColorKey(gra.og4, true, 0x000000);
+
+	gra.wb1 = SDL_LoadBMP("./wn1.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(wn1.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.wb1, true, 0x000000);
+	gra.wb2 = SDL_LoadBMP("./wn2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(wn1.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.wb2, true, 0x000000);
+	gra.wb3 = SDL_LoadBMP("./wn3.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(wn3.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.wb3, true, 0x000000);
+
+	gra.wcz1 = SDL_LoadBMP("./wcz1.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(wcz1.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.wcz1, true, 0x000000);
+	gra.wcz2 = SDL_LoadBMP("./wcz2.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(wcz2.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.wcz2, true, 0x000000);
+	gra.wcz3 = SDL_LoadBMP("./wcz3.bmp"); //bitmapa do tekstu
+	if (gra.progres == NULL) {
+		printf("SDL_LoadBMP(wcz3.bmp) error: %s\n", SDL_GetError());
+		SDL_FreeSurface(gra.screen);
+		SDL_DestroyTexture(gra.scrtex);
+		SDL_DestroyWindow(gra.window);
+		SDL_DestroyRenderer(gra.renderer);
+		SDL_Quit();
+	};
+	SDL_SetColorKey(gra.wcz3, true, 0x000000);
 }
 
 //////////										
@@ -1015,7 +1084,7 @@ void powieksz(stan_gry& gra)
 int czy_bonus() ///szansa na pojawienie siê bonusu
 {
 	int pom = rand() % 100;
-	if (pom <= 50)
+	if (pom <= 20)
 		return 1;
 	return 0;
 }
@@ -1062,6 +1131,7 @@ void zapisz(stan_gry& gra)
 	{
 		printf("zapis error: \n");
 	}
+	fprintf(plik, "%d \n", 1);
 	fprintf(plik, "%d \n", gra.time.t1);
 	fprintf(plik, "%d \n", gra.time.t2);
 	fprintf(plik, "%d \n", gra.time.frames);
@@ -1105,6 +1175,13 @@ void odczyt(stan_gry& gra)
 	{
 		printf("odczyt error: \n");
 	}
+	int czy_pusty = 0;
+	fscanf(plik, "%d ", &czy_pusty);
+	if (czy_pusty == EOF)
+	{
+		fclose(plik);
+		return;
+	}
 	fscanf(plik, "%d ", &gra.time.t1);
 	fscanf(plik, "%d ", &gra.time.t2);
 	fscanf(plik, "%d ", &gra.time.frames);
@@ -1138,7 +1215,7 @@ void odczyt(stan_gry& gra)
 		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].kierunek);
 	}
 	gra.snake.zmiana_kierunku_glowy = gra.snake.cialo_weza[0].kierunek;
-	fclose(plik);
+	
 }
 //////////										
 ////////// ZAPISYWANIE I ODCZYTANIE STANU GRY -KONIEC
@@ -1157,31 +1234,31 @@ void zdarzenie(stan_gry& gra)
 			{
 				nowa_gra(gra);
 			}
-			else if (gra.event.key.keysym.sym == SDLK_d)
+			else if (gra.event.key.keysym.sym == SDLK_RIGHT)
 			{
 				if (gra.snake.cialo_weza[0].x + gra.eti2->w / 2 != 1245)
 				if(gra.snake.cialo_weza[0].kierunek!=2)
 				gra.snake.zmiana_kierunku_glowy = 1;
 			}
-			else if (gra.event.key.keysym.sym == SDLK_a)
+			else if (gra.event.key.keysym.sym == SDLK_LEFT)
 			{
 				if (gra.snake.cialo_weza[0].x + gra.eti2->w / 2 != 45)
 				if (gra.snake.cialo_weza[0].kierunek != 1)
 				gra.snake.zmiana_kierunku_glowy = 2;
 			}
-			else if (gra.event.key.keysym.sym == SDLK_w)
+			else if (gra.event.key.keysym.sym == SDLK_UP)
 			{
 				if (gra.snake.cialo_weza[0].y - gra.eti2->h / 2 != 75)
 				if (gra.snake.cialo_weza[0].kierunek != 4)
 				gra.snake.zmiana_kierunku_glowy = 3;
 			}
-			else if (gra.event.key.keysym.sym == SDLK_s)
+			else if (gra.event.key.keysym.sym == SDLK_DOWN)
 			{
 				if (gra.snake.cialo_weza[0].kierunek != 3)
 					if (gra.snake.cialo_weza[0].y - gra.eti2->h / 2 != 675)
 				gra.snake.zmiana_kierunku_glowy = 4;
 			}
-			else if (gra.event.key.keysym.sym == SDLK_p)
+			else if (gra.event.key.keysym.sym == SDLK_s)
 			{
 				zapisz(gra);
 			}
@@ -1386,6 +1463,65 @@ void rysuj_info(stan_gry& gra)
 	sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
 	DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 26, text, gra.charset);
 }
+void maluj_wisnie_powieksz(stan_gry& gra)
+{
+	if (gra.time.licznik_czas_wisnia >= gra.time.czas_wisnia)
+	{
+		gra.wisnia_powieksz.bitmapa++;
+		gra.time.licznik_czas_wisnia = 0;
+	}
+	if (gra.wisnia_powieksz.bitmapa == 4)
+		gra.wisnia_powieksz.bitmapa = 1;
+	if (gra.wisnia_powieksz.bitmapa == 1)
+	{
+		DrawSurface(gra.screen, gra.wb1, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
+	}
+	else if (gra.wisnia_powieksz.bitmapa == 2)
+	{
+		DrawSurface(gra.screen, gra.wb2, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
+	}
+	else if (gra.wisnia_powieksz.bitmapa == 3)
+	{
+		DrawSurface(gra.screen, gra.wb3, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
+	}
+}
+void maluj_wisnie_bonusowa(stan_gry& gra)
+{
+	char text[128];
+	int zielony = SDL_MapRGB(gra.screen->format, 0x00, 0xFF, 0x00);
+	int czerwony = SDL_MapRGB(gra.screen->format, 0xFF, 0x00, 0x00);
+	int niebieski = SDL_MapRGB(gra.screen->format, 0x11, 0x11, 0xCC);
+	DrawSurface(gra.screen, gra.progres, 1000, 25);
+	DrawRectangle(gra.screen, 870, 8, gra.total_progres, 34, czerwony, czerwony);
+	if (gra.time.licznik_czas_wisnia_czerwona >= gra.time.czas_wisnia_czerwona)
+	{
+		gra.wisnia_bonusowa.bitmapa++;
+		gra.time.licznik_czas_wisnia_czerwona = 0;
+	}
+	if (gra.wisnia_bonusowa.bitmapa == 4)
+		gra.wisnia_bonusowa.bitmapa = 1;
+	if (gra.czerwony_bonus == 1)
+	{
+		zmniejsz(gra, gra.czerwony_bonus);
+		if(gra.wisnia_bonusowa.bitmapa == 1)
+		DrawSurface(gra.screen, gra.wcz1, gra.wisnia_bonusowa.x, gra.wisnia_bonusowa.y);
+		else if (gra.wisnia_bonusowa.bitmapa == 2)
+			DrawSurface(gra.screen, gra.wcz2, gra.wisnia_bonusowa.x, gra.wisnia_bonusowa.y);
+		else if (gra.wisnia_bonusowa.bitmapa == 3)
+			DrawSurface(gra.screen, gra.wcz3, gra.wisnia_bonusowa.x, gra.wisnia_bonusowa.y);
+	}
+}
+void przyspiesz_gre(stan_gry& gra)
+{
+	if (gra.time.speedup_limit <= gra.time.worldTime)
+	{
+		gra.time.snake_speed /= gra.time.speedup;
+		gra.time.czas_wisnia /= gra.time.speedup;
+		gra.time.czas_wisnia_czerwona /= gra.time.speedup;
+		gra.time.progres_delay /= gra.time.speedup;
+		gra.time.speedup_limit += 5;
+	}
+}
 int main(int argc, char* argv[]) {
 	srand(time(NULL));
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -1395,17 +1531,13 @@ int main(int argc, char* argv[]) {
 	int a=0;
 	stan_gry gra;
 	inicjalizacja(gra);
-	char text[128];
-	int czarny = SDL_MapRGB(gra.screen->format, 0x00, 0x00, 0x00);
-	int zielony = SDL_MapRGB(gra.screen->format, 0x00, 0xFF, 0x00);
-	int czerwony = SDL_MapRGB(gra.screen->format, 0xFF, 0x00, 0x00);
-	int niebieski = SDL_MapRGB(gra.screen->format, 0x11, 0x11, 0xCC);
 	config(gra);
 	init_cialo(gra);
 	gra.wisnia_bonusowa.x = rand() % 1200 + 30;
 	gra.wisnia_bonusowa.y = rand() % 550 + 130;
 	init_teleport(gra);
 	init_wisnia_points(gra);
+	int czarny = SDL_MapRGB(gra.screen->format, 0x00, 0x00, 0x00);
 	while (!gra.quit) {
 		
 		SDL_FillRect(gra.screen, NULL, czarny);
@@ -1418,23 +1550,13 @@ int main(int argc, char* argv[]) {
 		nowy_kierunek(gra);
 		rysowanie_glowy_weza(gra);
 		rysowanie_weza(gra);
-		DrawSurface(gra.screen, gra.wisnia, gra.wisnia_powieksz.x, gra.wisnia_powieksz.y);
+		maluj_wisnie_powieksz(gra);
 		rysuj_info(gra);
-		DrawSurface(gra.screen, gra.progres, 1000, 25);
-		DrawRectangle(gra.screen, 870, 8, gra.total_progres, 34, czerwony, czerwony);
-		if (gra.czerwony_bonus == 1)
-		{
-			zmniejsz(gra,gra.czerwony_bonus);
-			DrawSurface(gra.screen, gra.bonus, gra.wisnia_bonusowa.x, gra.wisnia_bonusowa.y);
-		}
+		maluj_wisnie_bonusowa(gra);
 		SDL_UpdateTexture(gra.scrtex, NULL, gra.screen->pixels, gra.screen->pitch);
 		SDL_RenderCopy(gra.renderer, gra.scrtex, NULL, NULL);
 		SDL_RenderPresent(gra.renderer);
-		if (gra.time.speedup_limit <= gra.time.worldTime)
-		{
-			gra.time.snake_speed /= gra.time.speedup;
-			gra.time.speedup_limit+=5;
-		}
+		przyspiesz_gre(gra);
 		licznik_progresu(gra, gra.czerwony_bonus);
 		
 
