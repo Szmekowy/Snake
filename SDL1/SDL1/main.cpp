@@ -76,13 +76,14 @@ struct stan_gry {
 		czesci_weza cialo_weza[200];
 		int pop = 1;
 	}snake;
-	teleporty teleport[2];
+	int ile_teleportow = 2;
+	teleporty teleport[20];
 
 };
 //////////										
 ////////// STRUKTURY							
 ////////// 
-
+void nowa_gra(stan_gry& gra);
 //////////										
 ////////// FUNKCJE TIMERA							
 ////////// 
@@ -484,6 +485,30 @@ void inicjalizacja(stan_gry& gra)
 ////////// 
 
 //////////										
+////////// MODYFIKACJA PREDKOSCI GRY
+//////////
+void przyspiesz_gre(stan_gry& gra)
+{
+	if (gra.time.speedup_limit <= gra.time.worldTime)
+	{
+		gra.time.snake_speed /= gra.time.speedup;
+		gra.time.czas_wisnia /= gra.time.speedup;
+		gra.time.czas_wisnia_czerwona /= gra.time.speedup;
+		gra.time.speedup_limit += 5;
+	}
+}
+void spowolnij_gre(stan_gry& gra)
+{
+	gra.time.snake_speed *= gra.time.slowdown;
+	gra.time.czas_wisnia *= gra.time.slowdown;
+	gra.time.czas_wisnia_czerwona *= gra.time.slowdown;
+
+}
+//////////										
+////////// MODYFIKACJA PREDKOSCI GRY - koniec
+//////////
+
+//////////										
 ////////// PO£O¯ENIE WÊ¯A NA MAPIE								
 ////////// 
 void zmiana_pozycji(stan_gry &gra) /// zmiana kierunku poruszania siê g³owy i reakcja na œciany
@@ -544,21 +569,28 @@ void zmiana_pozycji(stan_gry &gra) /// zmiana kierunku poruszania siê g³owy i re
 		}
 	}
 }
-void mechanika_zjadania(stan_gry& gra, int i)
+void mechanika_zjadania(stan_gry& gra, int i) // skracanie siê we¿a gdy zbyt szybki skrêt
 {
-	if (i == 2)
+	if (i == 2 &&gra.snake.aktualny_rozmiar>3)
 	{
 		if (gra.snake.cialo_weza[i].kierunek != gra.snake.cialo_weza[i + 1].kierunek)
 		{
 			if (abs(gra.snake.cialo_weza[i].x - gra.snake.cialo_weza[i + 1].x) > 40)
+			{
+				gra.points -= gra.snake.aktualny_rozmiar;
 				gra.snake.aktualny_rozmiar = 3;
+			}
 			else if (abs(gra.snake.cialo_weza[i].y - gra.snake.cialo_weza[i + 1].y) > 40)
+			{
 				gra.snake.aktualny_rozmiar = 3;
+				gra.points -= gra.snake.aktualny_rozmiar;
+				
+			}
 		}
 		
 	}
 }
-void podstawowa_zmiana_kierunku(stan_gry& gra, int i)
+void podstawowa_zmiana_kierunku(stan_gry& gra, int i) 
 {
 	if (((gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y + 30 || gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y - 30) && (gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x)) || ((gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x + 30 || gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x - 30) && (gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y))) /// czy jest mo¿liwa zmiana kierunku
 	{
@@ -571,8 +603,6 @@ void podstawowa_zmiana_kierunku(stan_gry& gra, int i)
 		else if (gra.snake.cialo_weza[i].pom == 0)
 		{
 
-
-
 			gra.snake.cialo_weza[i].kierunek = gra.snake.cialo_weza[i - 1].kierunek;
 			gra.snake.cialo_weza[i].pom = 1;
 
@@ -582,13 +612,13 @@ void podstawowa_zmiana_kierunku(stan_gry& gra, int i)
 			gra.snake.cialo_weza[i].pom = 0;
 	}
 }
-void zmiana_parametrow_skretu(stan_gry& gra, int i)
+void zmiana_parametrow_skretu(stan_gry& gra, int i) // parametry mówi¹ o tym czy mo¿liwy jest skrêt cia³a
 {
 	gra.snake.cialo_weza[i].pom = 0;
 	if (gra.time.licznik_zmiany >= gra.time.czas_zmiany)
 		gra.time.licznik_zmiany = 0;
 }
-void szybka_zmiana_kierunku(stan_gry& gra, int i)
+void szybka_zmiana_kierunku(stan_gry& gra, int i) // zmiana kierunku w specjalnych sytuacjach
 {
 	if (((gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y + 30 || gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y - 30) && (gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x)) || ((gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x + 30 || gra.snake.cialo_weza[i].x == gra.snake.cialo_weza[i - 1].x - 30) && (gra.snake.cialo_weza[i].y == gra.snake.cialo_weza[i - 1].y)))
 	{
@@ -605,7 +635,6 @@ void szybka_zmiana_kierunku(stan_gry& gra, int i)
 				{
 					gra.snake.cialo_weza[i].kierunek = 3;
 					zmiana_parametrow_skretu(gra, i);
-
 				}
 
 			}
@@ -746,50 +775,15 @@ int czy_kolizja(stan_gry& gra) /// sprawdzanie kolizji g³owy z cia³em wê¿a
 	}
 	return 0;
 }
+
 //////////										
 ////////// PO£O¯ENIE WÊ¯A NA MAPIE-koniec									
 ////////// 
-void config(stan_gry& gra)
-{
-	FILE* plik;
-	plik = fopen("config.txt", "r");
-	fscanf(plik, "%d", &gra.snake.aktualny_rozmiar);
-	fscanf(plik, "%lf", &gra.time.speedup);
-	fscanf(plik, "%lf", &gra.time.slowdown);
-	fscanf(plik, "%lf", &gra.time.progres_delay);
-	fscanf(plik, "%lf", &gra.time.snake_speed);
-	fscanf(plik, "%lf", &gra.time.speedup_limit);
-	fscanf(plik, "%d", &gra.wisnia_bonusowa.punkty);
-	fscanf(plik, "%d", &gra.wisnia_powieksz.punkty);
 
-	fclose(plik);
-}
-void nowa_gra(stan_gry& gra)
-{
-	gra.snake.zmiana_kierunku_glowy = 1;
-	gra.snake.cialo_weza[0].x = 510;
-	gra.snake.cialo_weza[0].y = 300;
-	gra.snake.cialo_weza[0].kierunek = 1;
-	gra.time.worldTime = 0;
-	gra.snake.aktualny_rozmiar = 5;
-	gra.time.snake_speed_licznik = 0;
-	gra.points = 0;
-	gra.time.snake_speed = 0.008;
-	gra.total_progres = 1;
-	gra.time.speedup_limit = 5;
-	gra.time.licznik_zmiany = 0.4;
-	gra.time.czas_zmiany = 0.4;
-	gra.czerwony_bonus = 0;
-	gra.time.t1 = SDL_GetTicks();
-
-	config(gra);
-	init_cialo(gra);
-}
 //////////										
-////////// ZAKONCZENIE ROZGRYWKI-KONIEC //////////										
-////////// popraw
-//////////
-//////////
+////////// WYSWIETLENIE KONCOWYCH WYNIKOW 									
+////////// 
+
 void wpisz_imie_gracza(stan_gry& gra, char imiegracza[])
 {
 	char text[128];
@@ -944,10 +938,9 @@ void rozpocznij_gre(stan_gry& gra)
 	}
 }
 //////////										
-////////// ZAKONCZENIE ROZGRYWKI-KONIEC //////////										
-////////// popraw
-//////////
-//////////
+////////// WYSWIETLENIE WYNIKOW KONCOWYCH	- koniec								
+////////// 
+
 
 //////////										
 ////////// ZEBRANIE WISNI
@@ -1008,6 +1001,13 @@ int zebranie_wisni2(stan_gry& gra)
 	}
 	return 0;
 }
+void init_wisnia_points(stan_gry& gra)
+{
+	gra.wisnia_bonusowa.x = rand() % 1200 + 30;
+	gra.wisnia_bonusowa.y = rand() % 550 + 130;
+	gra.wisnia_bonusowa.punkty = 2;
+	gra.wisnia_powieksz.punkty = 1;
+}
 //////////										
 ////////// ZEBRANIE WISNI-KONIEC
 //////////
@@ -1023,8 +1023,7 @@ void zmniejsz(stan_gry& gra, int bonus)
 		int pom = rand() % 2 + 1;
 		if (pom == 1)
 		{
-			gra.time.snake_speed *= gra.time.slowdown;
-			gra.time.czas_zmiany *= gra.time.slowdown;
+			spowolnij_gre(gra);
 		}
 		else if(gra.snake.aktualny_rozmiar>1)
 		{
@@ -1164,6 +1163,14 @@ void zapisz(stan_gry& gra)
 		fprintf(plik, "%d \n", gra.snake.cialo_weza[i].pom);
 		fprintf(plik, "%d \n", gra.snake.cialo_weza[i].kierunek);
 	}
+	fprintf(plik, "%d \n", gra.ile_teleportow);
+	for (int i = 0; i < gra.ile_teleportow; i++)
+	{
+		fprintf(plik, "%d \n", gra.teleport[i].x);
+		fprintf(plik, "%d \n", gra.teleport[i].y);
+		fprintf(plik, "%d \n", gra.teleport[i].x2);
+		fprintf(plik, "%d \n", gra.teleport[i].y2);
+	}
 	fclose(plik);
 
 }
@@ -1213,6 +1220,14 @@ void odczyt(stan_gry& gra)
 		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].y);
 		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].pom);
 		fscanf(plik, "%d ", &gra.snake.cialo_weza[i].kierunek);
+	}
+	fscanf(plik, "%d ", &gra.ile_teleportow);
+	for (int i = 0; i < gra.ile_teleportow; i++)
+	{
+		fscanf(plik, "%d", &gra.teleport[i].x);
+		fscanf(plik, "%d", &gra.teleport[i].y);
+		fscanf(plik, "%d", &gra.teleport[i].x2);
+		fscanf(plik, "%d", &gra.teleport[i].y2);
 	}
 	gra.snake.zmiana_kierunku_glowy = gra.snake.cialo_weza[0].kierunek;
 	
@@ -1274,40 +1289,69 @@ void zdarzenie(stan_gry& gra)
 		};
 	};
 }
+void nowy_kierunek(stan_gry& gra)
+{
+	if (gra.time.czas_zmiany <= gra.time.licznik_zmiany)
+	{
+		if (gra.snake.cialo_weza[0].kierunek == gra.snake.zmiana_kierunku_glowy)
+			zdarzenie(gra);
+	}
+	if (gra.snake.cialo_weza[0].x % 30 == 0 && gra.snake.cialo_weza[0].y % 30 == 0)
+	{
+		gra.snake.cialo_weza[0].kierunek = gra.snake.zmiana_kierunku_glowy;
+	}
+}
+
 //////////										
 ////////// INTERAKCJA UZYTKOWNIKA -koniec
 //////////
+
+//////////										
+////////// TELEPORTACJA 
+//////////
 void init_teleport(stan_gry& gra)
 {
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < gra.ile_teleportow; i++)
 	{
-		gra.teleport[i].x = (rand() % 40 +2)*30 ;
+		gra.teleport[i].x = (rand() % 38 +2)*30 ;
 		gra.teleport[i].y = (rand() % 20 + 2) * 30+60;
-		gra.teleport[i].x2 = (rand() % 40 + 2) * 30;
+		while(gra.teleport[i].y==300)
+			gra.teleport[i].y = (rand() % 20 + 2) * 30 + 60;
+		gra.teleport[i].x2 = (rand() % 38 + 2) * 30;
 		gra.teleport[i].y2 = (rand() % 20 + 2) * 30+60;
+		while (gra.teleport[i].y2 == 300)
+			gra.teleport[i].y2 = (rand() % 20 + 2) * 30 + 60;
 	}
 }
 void rysuj_teleport(stan_gry& gra)
 {
 	char text[128];
-	int czarny = SDL_MapRGB(gra.screen->format, 0x00, 0x00, 0x00);
 	int zielony = SDL_MapRGB(gra.screen->format, 0x00, 0xFF, 0x00);
 	int czerwony = SDL_MapRGB(gra.screen->format, 0xFF, 0x00, 0x00);
 	int niebieski = SDL_MapRGB(gra.screen->format, 0x11, 0x11, 0xCC);
-	int inny = SDL_MapRGB(gra.screen->format, 0xF2, 0x21, 0xCC);
-
-	DrawRectangle(gra.screen, gra.teleport[0].x, gra.teleport[0].y-15, 2, 30, czerwony, niebieski);
-	DrawRectangle(gra.screen, gra.teleport[0].x2, gra.teleport[0].y2-15, 2, 30, zielony, niebieski);
-	DrawRectangle(gra.screen, gra.teleport[1].x, gra.teleport[1].y-15, 2, 30, niebieski, niebieski);
-	DrawRectangle(gra.screen, gra.teleport[1].x2, gra.teleport[1].y2-15, 2, 30, inny, niebieski);
-	sprintf(text, "1");
-	DrawString(gra.screen, gra.teleport[0].x-1, gra.teleport[0].y-30, text, gra.charset);
-	sprintf(text, "1");
-	DrawString(gra.screen, gra.teleport[0].x2 - 1, gra.teleport[0].y2 - 30, text, gra.charset);
-	sprintf(text, "2");
-	DrawString(gra.screen, gra.teleport[1].x - 1, gra.teleport[1].y - 30, text, gra.charset);
-	sprintf(text, "2");
-	DrawString(gra.screen, gra.teleport[1].x2 - 1, gra.teleport[1].y2 - 30, text, gra.charset);
+	for (int i = 0; i < gra.ile_teleportow; i++)
+	{
+		if ((i + 1) % 2 == 0)
+		{
+			DrawRectangle(gra.screen, gra.teleport[i].x, gra.teleport[i].y - 15, 2, 30, czerwony, niebieski);
+			DrawRectangle(gra.screen, gra.teleport[i].x2, gra.teleport[i].y2 - 15, 2, 30, czerwony, niebieski);
+		}
+		else if ((i + 1) % 3 == 0 && (i + 1) % 2 != 0)
+		{
+			DrawRectangle(gra.screen, gra.teleport[i].x, gra.teleport[i].y - 15, 2, 30, zielony, niebieski);
+			DrawRectangle(gra.screen, gra.teleport[i].x2, gra.teleport[i].y2 - 15, 2, 30, zielony, niebieski);
+		}
+		else
+		{
+			DrawRectangle(gra.screen, gra.teleport[i].x, gra.teleport[i].y - 15, 2, 30, niebieski, niebieski);
+			DrawRectangle(gra.screen, gra.teleport[i].x2, gra.teleport[i].y2 - 15, 2, 30, niebieski, niebieski);
+		}
+		sprintf(text, "%d", i+1);
+		DrawString(gra.screen, gra.teleport[i].x - 1, gra.teleport[i].y - 30, text, gra.charset);
+		sprintf(text, "%d", i+1);
+		DrawString(gra.screen, gra.teleport[i].x2 - 1, gra.teleport[i].y2 - 30, text, gra.charset);
+	}
+	
 }
 void teleportacja(stan_gry& gra)
 {
@@ -1315,7 +1359,7 @@ void teleportacja(stan_gry& gra)
 		{
 			if (gra.snake.cialo_weza[i].kierunek != 3 && gra.snake.cialo_weza[i].kierunek != 4)
 			{
-				for (int j = 0; j < 2; j++)
+				for (int j = 0; j < gra.ile_teleportow; j++)
 				{
 					if (gra.snake.cialo_weza[i].x == gra.teleport[j].x && gra.snake.cialo_weza[i].y == gra.teleport[j].y)
 					{
@@ -1382,12 +1426,13 @@ void teleportacja(stan_gry& gra)
 		}
 	
 }
+//////////										
+////////// TELEPORTACJA - koniec
+//////////
 
-void init_wisnia_points(stan_gry& gra)
-{
-	gra.wisnia_bonusowa.punkty = 2;
-	gra.wisnia_powieksz.punkty = 1;
-}
+//////////										
+////////// RYSOWANIE ELEMWNTOW NA MAPIE
+//////////
 void rysowanie_glowy_weza(stan_gry& gra)
 {
 	if (gra.snake.cialo_weza[0].kierunek == 1)
@@ -1438,18 +1483,7 @@ void rysowanie_weza(stan_gry& gra)
 		zmiana_pozycji_ciala(gra, i);
 	}
 }
-void nowy_kierunek(stan_gry& gra)
-{
-	if (gra.time.czas_zmiany <= gra.time.licznik_zmiany)
-	{
-		if (gra.snake.cialo_weza[0].kierunek == gra.snake.zmiana_kierunku_glowy)
-			zdarzenie(gra);
-	}
-	if (gra.snake.cialo_weza[0].x % 30 == 0 && gra.snake.cialo_weza[0].y % 30 == 0)
-	{
-		gra.snake.cialo_weza[0].kierunek = gra.snake.zmiana_kierunku_glowy;
-	}
-}
+
 void rysuj_info(stan_gry& gra)
 {
 	char text[128];
@@ -1458,9 +1492,9 @@ void rysuj_info(stan_gry& gra)
 	int czerwony = SDL_MapRGB(gra.screen->format, 0xFF, 0x00, 0x00);
 	int niebieski = SDL_MapRGB(gra.screen->format, 0x11, 0x11, 0xCC);
 	DrawRectangle(gra.screen, 0, 4, SCREEN_WIDTH, 50, czerwony, niebieski);
-	sprintf(text, "Szsablasfsdon , czas trwania = %.1lf s  %.0lf klatek / s  %d   %d    %d %d %d ", gra.time.worldTime, gra.time.fps, gra.points, gra.snake.cialo_weza[1].pom, gra.snake.cialo_weza[2].pom, gra.snake.cialo_weza[1].kierunek, gra.snake.cialo_weza[2].kierunek);
+	sprintf(text, "AKTUALNY CZAS GRY = %.1lf s  %.0lf klatek / s  TWOJE PUNKTY: %d AKTUALNY ROZMIAR: %d ", gra.time.worldTime, gra.time.fps, gra.points, gra.snake.aktualny_rozmiar);
 	DrawString(gra.screen, gra.screen->w / 4 - strlen(text) * 8 / 2, 10, text, gra.charset);
-	sprintf(text, "Esc - wyjscie, \030 - przyspieszenie, \031 - zwolnienie");
+	sprintf(text, "WYPELNIONE ZADANIA 1-4 A-I");
 	DrawString(gra.screen, gra.screen->w / 2 - strlen(text) * 8 / 2, 26, text, gra.charset);
 }
 void maluj_wisnie_powieksz(stan_gry& gra)
@@ -1511,32 +1545,68 @@ void maluj_wisnie_bonusowa(stan_gry& gra)
 			DrawSurface(gra.screen, gra.wcz3, gra.wisnia_bonusowa.x, gra.wisnia_bonusowa.y);
 	}
 }
-void przyspiesz_gre(stan_gry& gra)
+//////////										
+////////// RYSOWANIE ELEMWNTOW NA MAPIE -koniec
+//////////
+
+//////////										
+////////// NOWA GRA							
+////////// 
+void config(stan_gry& gra) // plik konfiguracyjny
 {
-	if (gra.time.speedup_limit <= gra.time.worldTime)
-	{
-		gra.time.snake_speed /= gra.time.speedup;
-		gra.time.czas_wisnia /= gra.time.speedup;
-		gra.time.czas_wisnia_czerwona /= gra.time.speedup;
-		gra.time.progres_delay /= gra.time.speedup;
-		gra.time.speedup_limit += 5;
-	}
+	FILE* plik;
+	plik = fopen("config.txt", "r");
+	fscanf(plik, "%d", &gra.snake.aktualny_rozmiar);
+	fscanf(plik, "%lf", &gra.time.speedup);
+	fscanf(plik, "%lf", &gra.time.slowdown);
+	fscanf(plik, "%lf", &gra.time.progres_delay);
+	fscanf(plik, "%lf", &gra.time.snake_speed);
+	fscanf(plik, "%lf", &gra.time.speedup_limit);
+	fscanf(plik, "%d", &gra.wisnia_bonusowa.punkty);
+	fscanf(plik, "%d", &gra.wisnia_powieksz.punkty);
+
+	fclose(plik);
 }
+void nowa_gra(stan_gry& gra) // restart pocz¹tkowych zmiennych
+{
+	gra.snake.zmiana_kierunku_glowy = 1;
+	gra.snake.cialo_weza[0].x = 510;
+	gra.snake.cialo_weza[0].y = 300;
+	gra.snake.cialo_weza[0].kierunek = 1;
+	gra.time.worldTime = 0;
+	gra.snake.aktualny_rozmiar = 5;
+	gra.time.snake_speed_licznik = 0;
+	gra.points = 0;
+	gra.time.snake_speed = 0.008;
+	gra.total_progres = 1;
+	gra.time.speedup_limit = 5;
+	gra.time.licznik_zmiany = 0.4;
+	gra.time.czas_zmiany = 0.4;
+	gra.czerwony_bonus = 0;
+	gra.time.t1 = SDL_GetTicks();
+	init_teleport(gra);
+	config(gra);
+	init_cialo(gra);
+}
+//////////										
+////////// NOWA GRA- koniec									
+////////// 
+
+//////////										
+////////// MAIN G£ÓWNA PÊTLA GRY 
+//////////
 int main(int argc, char* argv[]) {
 	srand(time(NULL));
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return 1;
 	}
-	int a=0;
 	stan_gry gra;
 	inicjalizacja(gra);
+	init_wisnia_points(gra);
 	config(gra);
 	init_cialo(gra);
-	gra.wisnia_bonusowa.x = rand() % 1200 + 30;
-	gra.wisnia_bonusowa.y = rand() % 550 + 130;
 	init_teleport(gra);
-	init_wisnia_points(gra);
 	int czarny = SDL_MapRGB(gra.screen->format, 0x00, 0x00, 0x00);
 	while (!gra.quit) {
 		
@@ -1558,7 +1628,8 @@ int main(int argc, char* argv[]) {
 		SDL_RenderPresent(gra.renderer);
 		przyspiesz_gre(gra);
 		licznik_progresu(gra, gra.czerwony_bonus);
-		
-
 	}
 }
+//////////										
+////////// MAIN G£ÓWNA PÊTLA GRY - koniec;
+//////////
