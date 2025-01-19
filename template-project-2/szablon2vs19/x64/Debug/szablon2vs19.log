@@ -1,0 +1,10 @@
+﻿  main.cpp
+C:\Users\szmek\Desktop\template-project-2\main.cpp(676,44): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\szmek\Desktop\template-project-2\main.cpp(700,48): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\szmek\Desktop\template-project-2\main.cpp(721,43): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\szmek\Desktop\template-project-2\main.cpp(723,43): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\szmek\Desktop\template-project-2\main.cpp(1378,43): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\szmek\Desktop\template-project-2\main.cpp(1380,43): warning C4267: "argument": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\szmek\Desktop\template-project-2\main.cpp(1406,7): warning C4101: "text": lokalna zmienna, do której nie istnieje odwołanie
+C:\Users\szmek\Desktop\template-project-2\main.cpp(1525,12): warning C4244: "argument": konwersja z "time_t" do "unsigned int", możliwa utrata danych
+  szablon2vs19.vcxproj -> C:\Users\szmek\Desktop\template-project-2\x64\Debug\szablon2vs19.exe
