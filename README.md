@@ -3,7 +3,7 @@
 
 ### General info
 This project is a modern take on the classic Snake game with several unique enhancements. It maintains the core mechanics of the original game while introducing new gameplay elements to enhance the experience.
-This game was developed as a project during the first semester of Computer Science at Gdańsk University of Technology. The project instructions were written by Professor Dariusz Dereniowski
+This game was developed as a project during the first semester of Computer Science at Gdańsk University of Technology. 
 #### Key Features:
 
 * Teleportation: The snake can teleport between predefined locations on the game board.
