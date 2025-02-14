@@ -1,5 +1,5 @@
 # SNAKE GAME
--- miejsce na zdjecie
+![Snake](images/snake.gif)
 
 ### General info
 This project is a modern take on the classic Snake game with several unique enhancements. It maintains the core mechanics of the original game while introducing new gameplay elements to enhance the experience.
